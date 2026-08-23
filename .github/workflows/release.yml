@@ -104,10 +104,10 @@ jobs:
       #    release tag — `git checkout vX.Y.Z && pnpm publish --access public`
       #    — and keep tokens out of CI entirely.)
       #
-      - name: Publish (bootstrap, token-based)
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: pnpm publish --access public
+      # - name: Publish (bootstrap, token-based)
+      #   env:
+      #     NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      #   run: pnpm publish --access public
       #
       # B) pnpm 11 OIDC regression fallback (pnpm/pnpm#11513: token exchange
       #    404s on pnpm 11 where pnpm 10 worked). Uses the npm CLI instead;
@@ -116,10 +116,10 @@ jobs:
       #    documented as automatic with trusted publishing but has been
       #    reported as still required.
       #
-      # - name: Publish (npm CLI OIDC fallback)
-      #   run: |
-      #     npm install -g npm@latest
-      #     npm publish --access public --provenance
+      - name: Publish (npm CLI OIDC fallback)
+        run: |
+          npm install -g npm@latest
+          npm publish --access public --provenance
       # ─────────────────────────────────────────────────────────────────────
 
       - name: Verify Provenance
