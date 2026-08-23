@@ -78,7 +78,13 @@ jobs:
       - name: Lint and typecheck (oxlint, replaces `tsc --noEmit`)
         run: pnpm oxlint --type-aware --type-check --max-warnings=0
 
+      - name: Build Package
+        run: pnpm build
+
       - name: Verify dependency integrity
+        # pnpm-native: `npm audit signatures` FAILS on a pnpm-installed tree
+        # (verified: "npm error Failed to download"); `pnpm audit signatures`
+        # verifies registry signatures against pnpm's own layout.
         run: pnpm audit signatures
 
       - name: Release and Publish
@@ -88,6 +94,36 @@ jobs:
 
       - name: Publish
         run: pnpm publish --access public
+
+      # ─────────────────────────────────────────────────────────────────────
+      # BOOTSTRAP / FALLBACK VARIANTS — uncomment ONE if OIDC cannot be used.
+      #
+      # A) FIRST-EVER PUBLISH of a new package (OIDC impossible by design:
+      #    npm cannot configure a trusted publisher for a package that does
+      #    not exist yet — npm/cli#8544). Requires a granular automation
+      #    token stored as the NPM_TOKEN repo secret. Delete the secret and
+      #    re-comment after the first publish + trusted-publisher setup.
+      #    (Preferred alternative: publish the first version locally from the
+      #    release tag — `git checkout vX.Y.Z && pnpm publish --access public`
+      #    — and keep tokens out of CI entirely.)
+      #
+      - name: Publish (bootstrap, token-based)
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: pnpm publish --access public
+      #
+      # B) pnpm 11 OIDC regression fallback (pnpm/pnpm#11513: token exchange
+      #    404s on pnpm 11 where pnpm 10 worked). Uses the npm CLI instead;
+      #    trusted publishing needs npm >=11.5.1, installed here since the
+      #    active workflow no longer touches the npm CLI. `--provenance` is
+      #    documented as automatic with trusted publishing but has been
+      #    reported as still required.
+      #
+      # - name: Publish (npm CLI OIDC fallback)
+      #   run: |
+      #     npm install -g npm@latest
+      #     npm publish --access public --provenance
+      # ─────────────────────────────────────────────────────────────────────
 
       - name: Verify Provenance
         run: |
