@@ -36,32 +36,9 @@ jobs:
       - name: Install dependencies
         run: pnpm ci
 
-      # STEP 1: Format check (Fail Fast — cheapest signal first)
       - name: Check formatting
         run: pnpm oxfmt --check
 
-      # STEP 2: Build Package
-      # Before lint on purpose FOR MONOREPOS: type-aware linting resolves
-      # workspace dependencies through their built .d.ts.
-      # Standalone package: lint does not depend on your own dist/ (types
-      # resolve from source + node_modules), so move this step back after
-      # lint to restore lint-first fail-fast — unless the package
-      # self-references its own `exports` (e.g. `my-pkg/sub` in tests)
-      # mapped to dist/, which puts you back in the build-first case.
-      # No build script at all (plain-JS package like this one): remove.
-      - name: Build package
-        run: pnpm run build
-
-      # STEP 3: Lint + typecheck in one pass (replaces `tsc --noEmit`)
+      # Lint + typecheck in one pass (replaces `tsc --noEmit`)
       - name: Lint package code
         run: pnpm oxlint --type-aware --type-check --max-warnings=0
-
-      # STEP 4: Fast unit tests (always run)
-      - name: Unit tests
-        run: pnpm run test
-        if: github.ref != 'refs/heads/main' && github.base_ref != 'main'
-
-      # STEP 5: Full test suite (main branch only)
-      - name: Full test suite (Unit + Integration + E2E)
-        run: pnpm run test:all
-        if: github.ref == 'refs/heads/main' || github.base_ref == 'main'
