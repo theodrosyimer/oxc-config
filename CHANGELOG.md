@@ -1,5 +1,10 @@
 # Changelog
 
+## [3.0.3](https://github.com/theodrosyimer/oxc-config/compare/3.0.2...3.0.3) (2026-08-23)
+
+* update changelog formatting for consistency ([5e6fd90](https://github.com/theodrosyimer/oxc-config/commit/5e6fd909f70f8a9b2efc4177624dcd4eadfb441e))
+* update publish steps in release workflow ([e7638da](https://github.com/theodrosyimer/oxc-config/commit/e7638da41531816e75b99f989c0093ca7df0e192))
+
 ## [3.0.2](https://github.com/theodrosyimer/oxc-config/compare/3.0.1...3.0.2) (2026-08-23)
 
 - add build step and bootstrap publish variant to release workflow ([94a6125](https://github.com/theodrosyimer/oxc-config/commit/94a61259513328032075487bac96b9f755b31373))

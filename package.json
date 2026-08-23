@@ -1,6 +1,6 @@
 {
   "name": "@thyi/oxc-config",
-  "version": "3.0.2",
+  "version": "3.0.3",
   "description": "Oxlint + Oxfmt config for TypeScript, Node.js, React, React Native (successor of @thyi/eslint-config)",
   "keywords": [
     "config",
