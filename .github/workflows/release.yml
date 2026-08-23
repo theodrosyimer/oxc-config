@@ -77,12 +77,8 @@ jobs:
 
       - name: Lint and typecheck (oxlint, replaces `tsc --noEmit`)
         run: pnpm oxlint --type-aware --type-check --max-warnings=0
-
-      - name: Build Package
-        run: pnpm build
-
       - name: Verify dependency integrity
-        run: npm audit signatures
+        run: pnpm audit signatures
 
       - name: Release and Publish
         env:
