@@ -2,13 +2,13 @@
 
 ## [3.0.2](https://github.com/theodrosyimer/oxc-config/compare/3.0.1...3.0.2) (2026-08-23)
 
-* add build step and bootstrap publish variant to release workflow ([94a6125](https://github.com/theodrosyimer/oxc-config/commit/94a61259513328032075487bac96b9f755b31373))
-* add dependency integrity verification step in release workflow ([8b213bf](https://github.com/theodrosyimer/oxc-config/commit/8b213bf514de8cee7d30fdb56d308de9e363c63f))
-* remove build step from release workflow ([c0f82a9](https://github.com/theodrosyimer/oxc-config/commit/c0f82a912ad2db0913c3282e87f090533487875c))
+- add build step and bootstrap publish variant to release workflow ([94a6125](https://github.com/theodrosyimer/oxc-config/commit/94a61259513328032075487bac96b9f755b31373))
+- add dependency integrity verification step in release workflow ([8b213bf](https://github.com/theodrosyimer/oxc-config/commit/8b213bf514de8cee7d30fdb56d308de9e363c63f))
+- remove build step from release workflow ([c0f82a9](https://github.com/theodrosyimer/oxc-config/commit/c0f82a912ad2db0913c3282e87f090533487875c))
 
 ### 💎 Style Changes
 
-* format changelog ([36f988b](https://github.com/theodrosyimer/oxc-config/commit/36f988b38a54358f2d06808af4d218e89e8df1fe))
+- format changelog ([36f988b](https://github.com/theodrosyimer/oxc-config/commit/36f988b38a54358f2d06808af4d218e89e8df1fe))
 
 ## 3.0.1 (2026-08-23)
 
