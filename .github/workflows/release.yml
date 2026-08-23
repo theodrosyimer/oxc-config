@@ -1,0 +1,99 @@
+name: Release and Publish
+
+on:
+  workflow_run:
+    workflows: ["NPM Package CI"]
+    types: [completed]
+    branches:
+      - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release-and-publish:
+    runs-on: ubuntu-latest
+    if: github.event.workflow_run.conclusion == 'success'
+
+    # ✅ Only required permissions for trusted publishing
+    permissions:
+      contents: write # Git operations, create releases
+      id-token: write # OIDC for trusted publishing
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+          # ❌ actions/checkout@v6 changes the behaviour of how the token is stored. Now i need tp set it to true to use the GITHUB_TOKEN for git operations, which is security risk... Need to check this reguarly to see if it is still needed in the future.
+          persist-credentials: true
+      - name: Set Git User
+        run: |
+          git config user.name "${{ github.actor }}"
+          git config user.email "${{ github.actor }}@users.noreply.github.com"
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5.0.0
+
+      - name: Install Node.js
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          # ✅ Use Node.js 22.18.0 or greater for guaranteed NPM 11.5.1+ compatibility
+          # node-version: '22.18.0' # Latest LTS
+          node-version-file: .nvmrc # Use the .nvmrc file to set the Node.js version greater than or equal to 22.18.0
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Upgrade to Latest NPM CLI
+        run: npm install -g npm@latest
+
+      - name: Verify NPM CLI for Trusted Publishing
+        run: |
+          npm_version=$(npm --version)
+          echo "NPM CLI version: $npm_version"
+
+          # Verify trusted publishing support
+          [ "$(printf '%s\n' '11.5.1' "$npm_version" | sort -V | head -n1)" = "11.5.1" ] && {
+            echo "✅ NPM CLI $npm_version supports trusted publishing"
+          } || {
+            echo "❌ Installation of latest NPM failed or version insufficient for trusted publishing"
+            echo "❌ Current version: $npm_version (required: 11.5.1+)"
+            echo "❌ Try manually upgrading: npm install -g npm@latest"
+            exit 1
+          }
+
+      - name: Install dependencies
+        run: pnpm ci
+
+      # ✅ Oxc re-verification at the RELEASE commit. The CI run that
+      # triggered this workflow validated `workflow_run.head_sha`, but this
+      # checkout is main's CURRENT HEAD — commits may have landed in between.
+      # Re-running the (fast) oxc gates closes that race before publishing.
+      # Standalone-package ordering: lint before build — type-aware linting
+      # resolves types from source + node_modules, not from this package's
+      # own dist/.
+      - name: Check formatting (oxfmt)
+        run: pnpm oxfmt --check
+
+      - name: Lint and typecheck (oxlint, replaces `tsc --noEmit`)
+        run: pnpm oxlint --type-aware --type-check --max-warnings=0
+
+      - name: Build Package
+        run: pnpm build
+
+      - name: Verify dependency integrity
+        run: npm audit signatures
+
+      - name: Release and Publish
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: pnpm release --ci
+
+      - name: Publish
+        run: pnpm publish --access public
+
+      - name: Verify Provenance
+        run: |
+          PACKAGE_NAME=$(node -p "require('./package.json').name")
+          echo "✅ Package published with automatic provenance"
+          echo "🔍 Verify at: https://npmjs.com/package/$PACKAGE_NAME"
