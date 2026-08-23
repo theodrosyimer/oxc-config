@@ -1,4 +1,4 @@
-import type { OxlintConfig } from 'oxlint'
+import type { OxlintConfig } from "oxlint";
 
-declare const defaultConfig: OxlintConfig
-export default defaultConfig
+declare const defaultConfig: OxlintConfig;
+export default defaultConfig;

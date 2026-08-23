@@ -10,18 +10,18 @@ TypeScript 7.0.2.
 
 ## What replaced what
 
-| Before                                              | After                                                                       |
-| --------------------------------------------------- | --------------------------------------------------------------------------- |
-| eslint core + `@eslint/js` recommended              | Oxlint built-in rules; `correctness` (error) + `suspicious` (warn) baseline |
-| typescript-eslint (incl. type-aware presets)        | Oxlint `typescript/*` rules; type-aware via `oxlint-tsgolint` (tsgolint)[^3] |
-| `eslint-plugin-import` + TS resolver                | Oxlint `import` plugin (tsconfig-aware resolution built in)                 |
-| `import/order`                                      | **Oxfmt `sortImports`** — oxc will not implement `import/order`[^4]         |
-| `eslint-plugin-react`, `eslint-plugin-react-hooks`  | Oxlint native `react` plugin (includes `rules-of-hooks`/`exhaustive-deps`)  |
-| `eslint-plugin-react-native`                        | Same plugin, loaded through Oxlint **JS plugins** (ESLint-v9 compat)[^5]    |
-| `eslint-config-turbo`                               | `eslint-plugin-turbo` through JS plugins (`./turbo` export)                 |
-| `eslint-plugin-only-warn`                           | `onlyWarn(config)` helper (`./only-warn` export)                            |
-| `eslint-config-prettier`                            | Dropped — nothing to disable                                                |
-| Prettier + `prettier-plugin-pkg`                    | Oxfmt (`./oxfmt` export); native `sortPackageJson`                          |
+| Before                                             | After                                                                        |
+| -------------------------------------------------- | ---------------------------------------------------------------------------- |
+| eslint core + `@eslint/js` recommended             | Oxlint built-in rules; `correctness` (error) + `suspicious` (warn) baseline  |
+| typescript-eslint (incl. type-aware presets)       | Oxlint `typescript/*` rules; type-aware via `oxlint-tsgolint` (tsgolint)[^3] |
+| `eslint-plugin-import` + TS resolver               | Oxlint `import` plugin (tsconfig-aware resolution built in)                  |
+| `import/order`                                     | **Oxfmt `sortImports`** — oxc will not implement `import/order`[^4]          |
+| `eslint-plugin-react`, `eslint-plugin-react-hooks` | Oxlint native `react` plugin (includes `rules-of-hooks`/`exhaustive-deps`)   |
+| `eslint-plugin-react-native`                       | Same plugin, loaded through Oxlint **JS plugins** (ESLint-v9 compat)[^5]     |
+| `eslint-config-turbo`                              | `eslint-plugin-turbo` through JS plugins (`./turbo` export)                  |
+| `eslint-plugin-only-warn`                          | `onlyWarn(config)` helper (`./only-warn` export)                             |
+| `eslint-config-prettier`                           | Dropped — nothing to disable                                                 |
+| Prettier + `prettier-plugin-pkg`                   | Oxfmt (`./oxfmt` export); native `sortPackageJson`                           |
 
 ## Install (per project)
 
@@ -40,66 +40,66 @@ paths are rejected by Oxlint's TS-config loader.
 ### Node.js / NestJS / CLI — `oxlint.config.ts`
 
 ```ts
-import { defineConfig } from 'oxlint'
-import defaultConfig, { baseIgnorePatterns } from '@thyi/oxc-config'
+import { defineConfig } from "oxlint";
+import defaultConfig, { baseIgnorePatterns } from "@thyi/oxc-config";
 
 export default defineConfig({
   extends: [defaultConfig],
   // Always at ROOT level: ignore patterns carried through `extends`
   // do not apply from the consuming project (verified on oxlint 1.79.0).
   ignorePatterns: baseIgnorePatterns,
-})
+});
 ```
 
 ### Expo / React Native — `oxlint.config.ts`
 
 ```ts
-import { defineConfig } from 'oxlint'
-import { baseIgnorePatterns, reactConfig } from '@thyi/oxc-config'
+import { defineConfig } from "oxlint";
+import { baseIgnorePatterns, reactConfig } from "@thyi/oxc-config";
 
 export default defineConfig({
   extends: [reactConfig],
   ignorePatterns: baseIgnorePatterns,
-})
+});
 ```
 
 ### Turborepo env-var check (addon, composable with either)
 
 ```ts
-import { defineConfig } from 'oxlint'
-import defaultConfig, { baseIgnorePatterns, turboAddon } from '@thyi/oxc-config'
+import { defineConfig } from "oxlint";
+import defaultConfig, { baseIgnorePatterns, turboAddon } from "@thyi/oxc-config";
 
 export default defineConfig({
   extends: [defaultConfig, turboAddon],
   ignorePatterns: baseIgnorePatterns,
-})
+});
 ```
 
 ### only-warn mode (never fail local lint; CI stays strict)
 
 ```ts
-import { defineConfig } from 'oxlint'
-import { baseIgnorePatterns, onlyWarn, reactConfig } from '@thyi/oxc-config'
+import { defineConfig } from "oxlint";
+import { baseIgnorePatterns, onlyWarn, reactConfig } from "@thyi/oxc-config";
 
 export default defineConfig({
   extends: [onlyWarn(reactConfig)],
   ignorePatterns: baseIgnorePatterns,
   options: { maxWarnings: 0 }, // optional: strict exit code even in warn mode
-})
+});
 ```
 
 ### Formatter — `oxfmt.config.ts`
 
 ```ts
-import { defineConfig } from 'oxfmt'
-import { oxfmtConfig } from '@thyi/oxc-config/oxfmt'
+import { defineConfig } from "oxfmt";
+import { oxfmtConfig } from "@thyi/oxc-config/oxfmt";
 
 export default defineConfig({
   ...oxfmtConfig,
   // per-project additions, e.g.:
   // proseWrap: 'always',
   // sortTailwindcss: true,
-})
+});
 ```
 
 ### package.json scripts
@@ -112,8 +112,8 @@ export default defineConfig({
     "format": "oxfmt",
     "format:check": "oxfmt --check",
     // replaces `tsc --noEmit && lint` in one pass:
-    "check": "oxlint --type-aware --type-check && oxfmt --check"
-  }
+    "check": "oxlint --type-aware --type-check && oxfmt --check",
+  },
 }
 ```
 
@@ -123,8 +123,8 @@ export default defineConfig({
 {
   "lint-staged": {
     "*": "oxfmt --no-error-on-unmatched-pattern",
-    "*.{ts,tsx,js,jsx}": "oxlint --fix --no-error-on-unmatched-pattern"
-  }
+    "*.{ts,tsx,js,jsx}": "oxlint --fix --no-error-on-unmatched-pattern",
+  },
 }
 ```
 
@@ -146,7 +146,7 @@ One extension covers both tools: `oxc.oxc-vscode`. It runs `oxlint --lsp` /
 ```jsonc
 {
   "editor.codeActionsOnSave": {
-    "source.fixAll.oxc": "always"
+    "source.fixAll.oxc": "always",
   },
   "[javascript]": { "editor.defaultFormatter": "oxc.oxc-vscode", "editor.formatOnSave": true },
   "[javascriptreact]": { "editor.defaultFormatter": "oxc.oxc-vscode", "editor.formatOnSave": true },
@@ -155,7 +155,7 @@ One extension covers both tools: `oxc.oxc-vscode`. It runs `oxlint --lsp` /
   "[json]": { "editor.defaultFormatter": "oxc.oxc-vscode", "editor.formatOnSave": true },
   // remove once eslint/prettier are fully gone from the repo:
   "eslint.enable": false,
-  "prettier.enable": false
+  "prettier.enable": false,
 }
 ```
 
@@ -201,8 +201,8 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
-          node-version-file: '.nvmrc' # >=24.14.1 per `engines` (Oxlint TS configs need Node >=22.18)
-          cache: 'pnpm'
+          node-version-file: ".nvmrc" # >=24.14.1 per `engines` (Oxlint TS configs need Node >=22.18)
+          cache: "pnpm"
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -273,7 +273,7 @@ instead, which is the cheapest of the three checks.
    JS/TS.[^2] Inline lint disables become
    `// oxlint-disable-next-line <plugin>/<rule> -- reason`.
 5. Optional cross-check before deleting ESLint: `npx @oxlint/migrate
-   eslint.config.js --type-aware` and diff its output against this package.[^1]
+eslint.config.js --type-aware` and diff its output against this package.[^1]
 
 ## Known caveats
 
@@ -296,12 +296,21 @@ instead, which is the cheapest of the three checks.
   order; flip it per project if wanted.
 
 [^1]: https://oxc.rs/docs/guide/usage/linter/migrate-from-eslint
+
 [^2]: https://oxc.rs/docs/guide/usage/formatter/migrate-from-prettier
+
 [^3]: https://oxc.rs/docs/guide/usage/linter/type-aware
+
 [^4]: https://github.com/oxc-project/oxc/issues/1117
+
 [^5]: https://oxc.rs/docs/guide/usage/linter/js-plugins
+
 [^6]: https://oxc.rs/docs/guide/usage/linter/editors
+
 [^7]: https://oxc.rs/docs/guide/usage/formatter/editors
+
 [^8]: https://oxc.rs/docs/guide/usage/formatter/config-file-reference
+
 [^9]: https://github.com/oxc-project/oxc/issues/19504
+
 [^10]: https://github.com/oxc-project/oxc/issues/19437

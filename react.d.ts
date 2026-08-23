@@ -1,5 +1,5 @@
-import type { OxlintConfig } from 'oxlint'
+import type { OxlintConfig } from "oxlint";
 
-export declare const reactNativeGlobals: NonNullable<OxlintConfig['globals']>
-declare const reactConfig: OxlintConfig
-export default reactConfig
+export declare const reactNativeGlobals: NonNullable<OxlintConfig["globals"]>;
+declare const reactConfig: OxlintConfig;
+export default reactConfig;

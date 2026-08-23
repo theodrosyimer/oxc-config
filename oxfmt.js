@@ -24,20 +24,20 @@
 
 /** @type {OxfmtConfig} */
 export const oxfmtConfig = {
-  arrowParens: 'always',
+  arrowParens: "always",
   bracketSpacing: true,
-  embeddedLanguageFormatting: 'auto',
-  endOfLine: 'lf',
+  embeddedLanguageFormatting: "auto",
+  endOfLine: "lf",
   jsxSingleQuote: true,
   printWidth: 100,
   semi: false,
   singleAttributePerLine: false,
   singleQuote: true,
-  trailingComma: 'all',
+  trailingComma: "all",
   sortImports: {
-    internalPattern: ['~/', '@/', '#', '@docker/', '@scripts/'],
+    internalPattern: ["~/", "@/", "#", "@docker/", "@scripts/"],
   },
   sortPackageJson: true,
-}
+};
 
-export default oxfmtConfig
+export default oxfmtConfig;

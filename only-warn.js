@@ -20,24 +20,24 @@
  * @returns {unknown}
  */
 const downgradeSeverity = (severity) => {
-  if (severity === 'error' || severity === 2) return 'warn'
+  if (severity === "error" || severity === 2) return "warn";
   if (Array.isArray(severity)) {
-    const [level, ...options] = severity
-    if (level === 'error' || level === 2) return ['warn', ...options]
+    const [level, ...options] = severity;
+    if (level === "error" || level === 2) return ["warn", ...options];
   }
-  return severity
-}
+  return severity;
+};
 
 /**
  * @param {NonNullable<OxlintConfig['rules']> | undefined} rules
  * @returns {NonNullable<OxlintConfig['rules']> | undefined}
  */
 const downgradeRules = (rules) => {
-  if (rules === undefined) return undefined
+  if (rules === undefined) return undefined;
   return Object.fromEntries(
     Object.entries(rules).map(([name, severity]) => [name, downgradeSeverity(severity)]),
-  )
-}
+  );
+};
 
 /**
  * Returns a deep copy of the config with every `error` severity (rules,
@@ -71,5 +71,5 @@ export const onlyWarn = (config) => {
         ...(override.rules !== undefined && { rules: downgradeRules(override.rules) }),
       })),
     }),
-  }
-}
+  };
+};

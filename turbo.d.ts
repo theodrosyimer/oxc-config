@@ -1,3 +1,3 @@
-import type { OxlintConfig } from 'oxlint'
+import type { OxlintConfig } from "oxlint";
 
-export declare const turboAddon: OxlintConfig
+export declare const turboAddon: OxlintConfig;

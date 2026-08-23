@@ -7,16 +7,16 @@
  *
  *   export default defineConfig({ extends: [defaultConfig, turboAddon] })
  */
-import { fileURLToPath } from 'node:url'
+import { fileURLToPath } from "node:url";
 
 /** @typedef {import('oxlint').OxlintConfig} OxlintConfig */
 
-const turboPluginPath = fileURLToPath(import.meta.resolve('eslint-plugin-turbo'))
+const turboPluginPath = fileURLToPath(import.meta.resolve("eslint-plugin-turbo"));
 
 /** @type {OxlintConfig} */
 export const turboAddon = {
   jsPlugins: [turboPluginPath],
   rules: {
-    'turbo/no-undeclared-env-vars': 'warn',
+    "turbo/no-undeclared-env-vars": "warn",
   },
-}
+};

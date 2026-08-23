@@ -1,4 +1,4 @@
-import type { OxfmtConfig } from 'oxfmt'
+import type { OxfmtConfig } from "oxfmt";
 
-export declare const oxfmtConfig: OxfmtConfig
-export default oxfmtConfig
+export declare const oxfmtConfig: OxfmtConfig;
+export default oxfmtConfig;

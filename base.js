@@ -30,23 +30,23 @@
  */
 /** @type {NonNullable<OxlintConfig['ignorePatterns']>} */
 export const baseIgnorePatterns = [
-  '**/*.json',
-  '**/dist/**',
-  '**/node_modules/**',
-  '**/coverage/**',
-  '**/build/**',
-  '**/output/**',
-  '**/lib/**',
-  '**/html/**',
-  '**/.turbo/**',
-  '**/.expo/**',
-  '**/.next/**',
-  'eslint.config.*',
-  'oxlint.config.*',
-  'oxfmt.config.*',
-  'babel.config.js',
-  'metro.config.js',
-]
+  "**/*.json",
+  "**/dist/**",
+  "**/node_modules/**",
+  "**/coverage/**",
+  "**/build/**",
+  "**/output/**",
+  "**/lib/**",
+  "**/html/**",
+  "**/.turbo/**",
+  "**/.expo/**",
+  "**/.next/**",
+  "eslint.config.*",
+  "oxlint.config.*",
+  "oxfmt.config.*",
+  "babel.config.js",
+  "metro.config.js",
+];
 
 /**
  * Built-in plugins. Setting `plugins` overwrites Oxlint's default set,
@@ -54,7 +54,7 @@ export const baseIgnorePatterns = [
  * `eslint` core rules are always available and are not a plugin entry.
  */
 /** @type {NonNullable<OxlintConfig['plugins']>} */
-export const basePlugins = ['typescript', 'import', 'unicorn', 'oxc']
+export const basePlugins = ["typescript", "import", "unicorn", "oxc"];
 
 /**
  * Category baseline replacing the ESLint preset stack
@@ -65,24 +65,24 @@ export const basePlugins = ['typescript', 'import', 'unicorn', 'oxc']
  */
 /** @type {NonNullable<OxlintConfig['categories']>} */
 export const baseCategories = {
-  correctness: 'error',
-  suspicious: 'warn',
-}
+  correctness: "error",
+  suspicious: "warn",
+};
 
 /** @type {NonNullable<OxlintConfig['rules']>} */
 export const baseRules = {
-  eqeqeq: ['error', 'always', { null: 'ignore' }],
+  eqeqeq: ["error", "always", { null: "ignore" }],
   // `perf` category is off by default, but pinned so a category change
   // cannot silently enable it (same spirit as the non-null pinning below).
-  'no-await-in-loop': 'off',
-  'no-use-before-define': ['error', { functions: false }],
-  'preserve-caught-error': ['error', { requireCatchParameter: true }],
+  "no-await-in-loop": "off",
+  "no-use-before-define": ["error", { functions: false }],
+  "preserve-caught-error": ["error", { requireCatchParameter: true }],
   // Member sorting only — declaration ordering/grouping is Oxfmt sortImports.
-  'sort-imports': ['error', { ignoreDeclarationSort: true }],
-  'typescript/array-type': 'off',
-  'typescript/consistent-type-definitions': 'off',
-  'typescript/no-explicit-any': 'error',
-  'typescript/no-extraneous-class': ['warn', { allowEmpty: true }],
+  "sort-imports": ["error", { ignoreDeclarationSort: true }],
+  "typescript/array-type": "off",
+  "typescript/consistent-type-definitions": "off",
+  "typescript/no-explicit-any": "error",
+  "typescript/no-extraneous-class": ["warn", { allowEmpty: true }],
   // The non-null assertion `!` is banned, along with the three ways round it.
   // `!` asserts something no test can fail on: it silences the checker at one
   // expression and leaves nothing behind that would notice when the assumption
@@ -94,23 +94,23 @@ export const baseRules = {
   // `no-extra-non-null-assertion` are `correctness` (on by default); the other
   // two are `restriction` (off by default). All four are pinned here so a
   // category reshuffle cannot silently drop them. None need type information.
-  'typescript/no-non-null-assertion': 'error',
-  'typescript/no-non-null-asserted-nullish-coalescing': 'error',
-  'typescript/no-non-null-asserted-optional-chain': 'error',
-  'typescript/no-extra-non-null-assertion': 'error',
+  "typescript/no-non-null-assertion": "error",
+  "typescript/no-non-null-asserted-nullish-coalescing": "error",
+  "typescript/no-non-null-asserted-optional-chain": "error",
+  "typescript/no-extra-non-null-assertion": "error",
   // Same family, same reason: `as` re-labels a value without checking it.
   // 'never' bans it; `as const` is unaffected — the rule always permits const
   // assertions — so `satisfies` + `as const` idioms keep working.
   // The interop exception lives in baseOverrides below, by path.
-  'typescript/consistent-type-assertions': ['error', { assertionStyle: 'never' }],
-  'typescript/no-unused-vars': [
-    'error',
+  "typescript/consistent-type-assertions": ["error", { assertionStyle: "never" }],
+  "typescript/no-unused-vars": [
+    "error",
     {
-      argsIgnorePattern: '^_',
-      varsIgnorePattern: '^_',
+      argsIgnorePattern: "^_",
+      varsIgnorePattern: "^_",
     },
   ],
-}
+};
 
 /**
  * Type-aware rules — executed by tsgolint (`oxlint-tsgolint` package),
@@ -120,18 +120,18 @@ export const baseRules = {
  */
 /** @type {NonNullable<OxlintConfig['rules']>} */
 export const baseTypeAwareRules = {
-  'typescript/no-misused-promises': [
-    'error',
+  "typescript/no-misused-promises": [
+    "error",
     {
       checksVoidReturn: {
         attributes: false,
       },
     },
   ],
-  'typescript/no-unnecessary-condition': 'error',
-  'typescript/no-unsafe-argument': 'warn',
-  'typescript/require-await': 'off',
-}
+  "typescript/no-unnecessary-condition": "error",
+  "typescript/no-unsafe-argument": "warn",
+  "typescript/require-await": "off",
+};
 
 /**
  * The type-aware rules turned back off for plain JavaScript files —
@@ -139,35 +139,35 @@ export const baseTypeAwareRules = {
  */
 /** @type {NonNullable<OxlintConfig['rules']>} */
 export const typeAwareOffForJs = {
-  'typescript/no-floating-promises': 'off',
-  'typescript/no-misused-promises': 'off',
-  'typescript/no-unnecessary-condition': 'off',
-  'typescript/no-unsafe-argument': 'off',
-  'typescript/no-unsafe-assignment': 'off',
-  'typescript/no-unsafe-member-access': 'off',
-}
+  "typescript/no-floating-promises": "off",
+  "typescript/no-misused-promises": "off",
+  "typescript/no-unnecessary-condition": "off",
+  "typescript/no-unsafe-argument": "off",
+  "typescript/no-unsafe-assignment": "off",
+  "typescript/no-unsafe-member-access": "off",
+};
 
 /** @type {NonNullable<OxlintConfig['overrides']>} */
 export const baseOverrides = [
   {
     // Test-specific overrides. `env.jest` covers Vitest's jest-compatible
     // globals (describe/it/expect/vi-adjacent lifecycle hooks).
-    files: ['tests/**/*.ts', '**/*spec.ts', '**/*test.ts'],
+    files: ["tests/**/*.ts", "**/*spec.ts", "**/*test.ts"],
     env: {
       jest: true,
     },
     rules: {
-      'typescript/no-explicit-any': 'warn',
-      'typescript/no-unsafe-argument': 'off',
-      'typescript/no-unsafe-assignment': 'off',
-      'typescript/no-unsafe-member-access': 'off',
-      'max-lines-per-function': 'off',
-      'max-nested-callbacks': 'off',
+      "typescript/no-explicit-any": "warn",
+      "typescript/no-unsafe-argument": "off",
+      "typescript/no-unsafe-assignment": "off",
+      "typescript/no-unsafe-member-access": "off",
+      "max-lines-per-function": "off",
+      "max-nested-callbacks": "off",
     },
   },
   {
     // JavaScript-specific overrides (disable type-checked rules).
-    files: ['**/*.js', '**/*.cjs', '**/*.mjs'],
+    files: ["**/*.js", "**/*.cjs", "**/*.mjs"],
     rules: typeAwareOffForJs,
   },
   {
@@ -182,12 +182,12 @@ export const baseOverrides = [
     //
     // Deliberately NOT extended to tests: a cast in a test is usually a fixture
     // that should be typed, not interop.
-    files: ['**/infrastructure/**/*.ts', '**/infrastructure/**/*.tsx'],
+    files: ["**/infrastructure/**/*.ts", "**/infrastructure/**/*.tsx"],
     rules: {
-      'typescript/consistent-type-assertions': 'off',
+      "typescript/consistent-type-assertions": "off",
     },
   },
-]
+];
 
 /**
  * Shared skeleton every variant extends via `extends: [oxcBase]` in a
@@ -206,4 +206,4 @@ export const oxcBase = {
     ...baseTypeAwareRules,
   },
   overrides: baseOverrides,
-}
+};

@@ -2,16 +2,24 @@
   "name": "@thyi/oxc-config",
   "version": "3.0.0",
   "description": "Oxlint + Oxfmt config for TypeScript, Node.js, React, React Native (successor of @thyi/eslint-config)",
-  "type": "module",
+  "keywords": [
+    "config",
+    "format",
+    "lint",
+    "oxc",
+    "oxfmt",
+    "oxlint",
+    "react",
+    "react-native",
+    "typescript"
+  ],
+  "license": "MIT",
+  "author": "Theodros Yimer",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/theodrosyimer/oxc-config.git"
   },
-  "author": "Theodros Yimer",
-  "license": "MIT",
-  "engines": {
-    "node": ">=24.14.1"
-  },
+  "type": "module",
   "main": "index.js",
   "types": "./index.d.ts",
   "exports": {
@@ -36,17 +44,14 @@
       "default": "./oxfmt.js"
     }
   },
-  "keywords": [
-    "oxc",
-    "oxlint",
-    "oxfmt",
-    "typescript",
-    "react",
-    "react-native",
-    "lint",
-    "format",
-    "config"
-  ],
+  "publishConfig": {
+    "access": "public",
+    "tag": "latest"
+  },
+  "dependencies": {
+    "eslint-plugin-react-native": "^5.0.0",
+    "eslint-plugin-turbo": "^2.10.11"
+  },
   "peerDependencies": {
     "oxfmt": "^0.64.0",
     "oxlint": "^1.79.0",
@@ -60,13 +65,8 @@
       "optional": true
     }
   },
-  "dependencies": {
-    "eslint-plugin-react-native": "^5.0.0",
-    "eslint-plugin-turbo": "^2.10.11"
-  },
-  "publishConfig": {
-    "access": "public",
-    "tag": "latest"
+  "engines": {
+    "node": ">=24.14.1"
   },
   "packageManager": "pnpm@11.22.0+sha512.1ff870c4c6133dfd88fb2afc46dd13d47f09c9794b438c6fdb47ca98caf3bc16381ee0be93a091b8e3824cf01f889f46d7d9e20910fb0be1ab0fb5baa80dd621"
 }

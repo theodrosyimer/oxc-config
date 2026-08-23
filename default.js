@@ -2,7 +2,7 @@
  * Default config: Node.js / backend (NestJS, CLI, scripts).
  * Parity source: @thyi/eslint-config v2.8.5 `default.js`.
  */
-import { oxcBase } from './base.js'
+import { oxcBase } from "./base.js";
 
 /** @typedef {import('oxlint').OxlintConfig} OxlintConfig */
 
@@ -16,19 +16,19 @@ const defaultConfig = {
     typeAware: true,
   },
   rules: {
-    'typescript/no-floating-promises': [
-      'error',
+    "typescript/no-floating-promises": [
+      "error",
       {
-        allowForKnownSafeCalls: [{ from: 'file', name: 'invalidateQueries' }],
+        allowForKnownSafeCalls: [{ from: "file", name: "invalidateQueries" }],
       },
     ],
-    'typescript/no-require-imports': [
-      'error',
+    "typescript/no-require-imports": [
+      "error",
       {
-        allow: ['package.json', 'path', 'zod', 'dotenv', '@/scripts/*'],
+        allow: ["package.json", "path", "zod", "dotenv", "@/scripts/*"],
       },
     ],
   },
-}
+};
 
-export default defaultConfig
+export default defaultConfig;
