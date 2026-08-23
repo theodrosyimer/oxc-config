@@ -89,8 +89,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: pnpm release --ci
 
-      - name: Publish
-        run: pnpm publish --access public
+      # - name: Publish
+      #   run: pnpm publish --access public
 
       # ─────────────────────────────────────────────────────────────────────
       # BOOTSTRAP / FALLBACK VARIANTS — uncomment ONE if OIDC cannot be used.
