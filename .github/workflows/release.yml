@@ -78,9 +78,6 @@ jobs:
       - name: Lint and typecheck (oxlint, replaces `tsc --noEmit`)
         run: pnpm oxlint --type-aware --type-check --max-warnings=0
 
-      - name: Build Package
-        run: pnpm build
-
       - name: Verify dependency integrity
         # pnpm-native: `npm audit signatures` FAILS on a pnpm-installed tree
         # (verified: "npm error Failed to download"); `pnpm audit signatures`
