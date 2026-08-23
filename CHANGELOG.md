@@ -1,5 +1,10 @@
 # Changelog
 
+## [3.0.4](https://github.com/theodrosyimer/oxc-config/compare/3.0.3...3.0.4) (2026-08-23)
+
+* comment out publish step in release workflow ([1071e13](https://github.com/theodrosyimer/oxc-config/commit/1071e13c764b78d533c024b6ed34aa48ab01ee39))
+* fix formatting in changelog for consistency ([9a8fe4a](https://github.com/theodrosyimer/oxc-config/commit/9a8fe4af9a01f1e74f74c5fbe87a1e53dd93d153))
+
 ## [3.0.3](https://github.com/theodrosyimer/oxc-config/compare/3.0.2...3.0.3) (2026-08-23)
 
 - update changelog formatting for consistency ([5e6fd90](https://github.com/theodrosyimer/oxc-config/commit/5e6fd909f70f8a9b2efc4177624dcd4eadfb441e))
