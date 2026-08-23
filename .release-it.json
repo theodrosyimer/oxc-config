@@ -1,0 +1,76 @@
+{
+  "$schema": "https://unpkg.com/release-it@19/schema/release-it.json",
+  "git": {
+    "requireBranch": "main",
+    "commitMessage": "chore(release): release v${version}",
+    "requireUpstream": false,
+    "requireCleanWorkingDir": false
+  },
+  "hooks": {
+    "before:init": [
+      "echo '🚀 Starting secure release process with trusted publishing...'",
+      "git pull"
+    ],
+    "after:bump": [
+      "echo '📦 Version bumped to ${version}, preparing for trusted publish...'"
+    ],
+    "after:npm:publish": [
+      "echo '✅ Package published with automatic provenance attestation'"
+    ],
+    "after:release": [
+      "echo '🎉 Successfully released v${version} with provenance!'",
+      "echo '🔍 Verify provenance at: https://npmjs.com/package/${npm.name}'"
+    ]
+  },
+  "github": {
+    "release": true,
+    "releaseName": "v${version}"
+  },
+  "npm": {
+    "publish": false,
+    "skipChecks": true
+  },
+  "plugins": {
+    "@release-it/conventional-changelog": {
+      "infile": "CHANGELOG.md",
+      "header": "# Changelog",
+      "preset": {
+        "name": "conventionalcommits",
+        "types": [
+          {
+            "type": "feat",
+            "section": "✨ Features"
+          },
+          {
+            "type": "fix",
+            "section": "🐛 Bug Fixes"
+          },
+          {
+            "type": "chore",
+            "hidden": true
+          },
+          {
+            "type": "docs",
+            "section": "📚 Documentation"
+          },
+          {
+            "type": "style",
+            "section": "💎 Style Changes"
+          },
+          {
+            "type": "refactor",
+            "section": "♻️ Code Refactoring"
+          },
+          {
+            "type": "perf",
+            "section": "⚡ Performance Improvements"
+          },
+          {
+            "type": "test",
+            "hidden": true
+          }
+        ]
+      }
+    }
+  }
+}
