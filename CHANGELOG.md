@@ -1,5 +1,22 @@
 # Changelog
 
+## [4.0.0](https://github.com/theodrosyimer/oxc-config/compare/3.2.0...4.0.0) (2026-10-18)
+
+### ⚠ BREAKING CHANGES
+
+* the onlyWarn helper and the ./only-warn export are
+  removed, as are the baseJsPlugins, reactJsPlugins and reactRules exports
+  of the main entry. Every Oxlint category is off, so rules that were on
+  through correctness or suspicious and are not in eslint-config 3.0.1 no
+  longer report. The React config adds react-perf, react/no-unsafe and the
+  eight React Native plugin rules at error, and bans NativeWind,
+  TouchableOpacity, TouchableHighlight and react-native's Image,
+  SafeAreaView and KeyboardAvoidingView.
+
+### ✨ Features
+
+* match eslint-config 3.0.1 exactly and add a React Native plugin ([3745ca9](https://github.com/theodrosyimer/oxc-config/commit/3745ca9619588a40481809b7aa4bd67b3b48e01f))
+
 ## [3.2.0](https://github.com/theodrosyimer/oxc-config/compare/3.0.4...3.2.0) (2026-10-18)
 
 ### ✨ Features
