@@ -1,5 +1,15 @@
 # Changelog
 
+## [3.2.0](https://github.com/theodrosyimer/oxc-config/compare/3.0.4...3.2.0) (2026-10-18)
+
+### ✨ Features
+
+* match @thyi/eslint-config v3 rules and add react-web ([15ed2c7](https://github.com/theodrosyimer/oxc-config/commit/15ed2c732f8a9e42195949372f224badbb99f362))
+
+### 🐛 Bug Fixes
+
+* **ci:** publish with pnpm through OIDC like eslint-config ([aa0b3fe](https://github.com/theodrosyimer/oxc-config/commit/aa0b3fe7f79001fe48c1910f73982692f0077556))
+
 ## [3.0.4](https://github.com/theodrosyimer/oxc-config/compare/3.0.3...3.0.4) (2026-08-23)
 
 * comment out publish step in release workflow ([1071e13](https://github.com/theodrosyimer/oxc-config/commit/1071e13c764b78d533c024b6ed34aa48ab01ee39))
