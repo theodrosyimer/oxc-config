@@ -11,6 +11,8 @@
  */
 import { fileURLToPath } from "node:url";
 
+import { getDefaultSelectors } from "eslint-plugin-better-tailwindcss/defaults";
+
 import { baseJsPlugins, oxcBase } from "./base.js";
 
 /** @typedef {import('oxlint').OxlintConfig} OxlintConfig */
@@ -36,6 +38,15 @@ const tanstackQueryPluginPath = fileURLToPath(import.meta.resolve("@tanstack/esl
 const reactHooksPluginPath = fileURLToPath(import.meta.resolve("eslint-plugin-react-hooks"));
 
 /**
+ * `eslint-plugin-better-tailwindcss` (Oxlint-compatible, Tailwind 3 and 4)
+ * checks the class names in `className` and the Uniwind `*ClassName` props.
+ * https://github.com/schoero/eslint-plugin-better-tailwindcss
+ */
+const betterTailwindcssPluginPath = fileURLToPath(
+  import.meta.resolve("eslint-plugin-better-tailwindcss"),
+);
+
+/**
  * JS plugins every React variant loads on top of the base ones. `jsPlugins`
  * is replaced, not merged, by a config that extends another, hence the spread.
  */
@@ -44,24 +55,84 @@ export const reactJsPlugins = [
   ...baseJsPlugins,
   tanstackQueryPluginPath,
   { name: "react-hooks-js", specifier: reactHooksPluginPath },
+  betterTailwindcssPluginPath,
 ];
 
 /**
- * React rules shared by `react` and `react-web`:
- * - eslint-plugin-react `recommended`, via Oxlint's native react plugin.
- *   `prop-types` is left out: it checks JavaScript props, and TypeScript
- *   types them. `no-deprecated` has no Oxlint port; `react/no-unsafe` with
- *   `checkAliases` reports the deprecated lifecycle methods it covered, but
- *   not its other deprecated APIs. `jsx-uses-react` and `jsx-uses-vars`
- *   are not needed: Oxlint's `no-unused-vars` counts JSX use.
- * - eslint-plugin-react-perf `recommended`, via Oxlint's native react-perf
- *   plugin.
- * - eslint-plugin-react-hooks `recommended-latest`, via Oxlint's native
- *   react plugin. `config` and `gating` (React Compiler settings checks)
- *   have no Oxlint port and run from eslint-plugin-react-hooks itself
- *   (`react-hooks-js/*`).
- * - @tanstack/eslint-plugin-query `flat/recommended`.
+ * Where eslint-plugin-better-tailwindcss looks for class names: its default
+ * selectors (className, cn, clsx, tv, cva, …) plus every Uniwind `*ClassName`
+ * prop (`contentContainerClassName`, `colorClassName`, …).
+ *
+ * Passed as each rule's option, not as `settings`: a project's own
+ * `settings["better-tailwindcss"]` (its `entryPoint`) replaces the whole
+ * settings object of an extended config, and the selectors with it.
  */
+const betterTailwindcssSelectors = [
+  ...getDefaultSelectors(),
+  { kind: "attribute", name: "^[a-z]\\w*ClassName$" },
+  { kind: "attribute", name: "^[a-z]\\w*ClassName$", match: [{ type: "strings" }] },
+];
+
+/**
+ * Every rule of eslint-plugin-better-tailwindcss, at the severity its own
+ * configs use: stylistic rules warn, correctness rules error.
+ * `no-restricted-classes` reports nothing until a project lists the classes
+ * to restrict in its options.
+ *
+ * The Tailwind CSS entry file is the project's own: set
+ * `settings: { "better-tailwindcss": { entryPoint: "global.css" } }` in the
+ * project's root config, or `no-unknown-classes` checks against Tailwind's
+ * default theme and reports every `@theme` token as unknown.
+ */
+/** @type {NonNullable<OxlintConfig['rules']>} */
+export const betterTailwindcssRules = {
+  "better-tailwindcss/enforce-consistent-line-wrapping": [
+    "warn",
+    { selectors: betterTailwindcssSelectors },
+  ],
+  "better-tailwindcss/enforce-consistent-class-order": [
+    "warn",
+    { selectors: betterTailwindcssSelectors },
+  ],
+  "better-tailwindcss/enforce-consistent-variant-order": [
+    "warn",
+    { selectors: betterTailwindcssSelectors },
+  ],
+  "better-tailwindcss/enforce-consistent-variable-syntax": [
+    "warn",
+    { selectors: betterTailwindcssSelectors },
+  ],
+  "better-tailwindcss/enforce-consistent-important-position": [
+    "warn",
+    { selectors: betterTailwindcssSelectors },
+  ],
+  "better-tailwindcss/enforce-shorthand-classes": [
+    "warn",
+    { selectors: betterTailwindcssSelectors },
+  ],
+  "better-tailwindcss/enforce-logical-properties": [
+    "warn",
+    { selectors: betterTailwindcssSelectors },
+  ],
+  "better-tailwindcss/enforce-canonical-classes": [
+    "warn",
+    { selectors: betterTailwindcssSelectors },
+  ],
+  "better-tailwindcss/no-duplicate-classes": ["warn", { selectors: betterTailwindcssSelectors }],
+  "better-tailwindcss/no-deprecated-classes": ["warn", { selectors: betterTailwindcssSelectors }],
+  "better-tailwindcss/no-unnecessary-whitespace": [
+    "warn",
+    { selectors: betterTailwindcssSelectors },
+  ],
+  "better-tailwindcss/no-concatenated-classes": [
+    "error",
+    { selectors: betterTailwindcssSelectors },
+  ],
+  "better-tailwindcss/no-unknown-classes": ["error", { selectors: betterTailwindcssSelectors }],
+  "better-tailwindcss/no-conflicting-classes": ["error", { selectors: betterTailwindcssSelectors }],
+  "better-tailwindcss/no-restricted-classes": ["error", { selectors: betterTailwindcssSelectors }],
+};
+
 /** @type {NonNullable<OxlintConfig['rules']>} */
 export const reactRules = {
   "react/display-name": "error",
@@ -111,6 +182,7 @@ export const reactRules = {
   "@tanstack/query/infinite-query-property-order": "error",
   "@tanstack/query/no-void-query-fn": "error",
   "@tanstack/query/mutation-property-order": "error",
+  ...betterTailwindcssRules,
 };
 
 /**

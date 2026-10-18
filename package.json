@@ -79,6 +79,7 @@
     "@oxlint/plugins": "^1.88.0",
     "@stylistic/eslint-plugin": "^5.10.0",
     "@tanstack/eslint-plugin-query": "^5.104.1",
+    "eslint-plugin-better-tailwindcss": "^4.9.1",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-turbo": "^2.10.11"
   },
@@ -90,13 +91,17 @@
   "peerDependencies": {
     "oxfmt": "^0.64.0",
     "oxlint": "^1.79.0",
-    "oxlint-tsgolint": ">=0.5.0"
+    "oxlint-tsgolint": ">=0.5.0",
+    "tailwindcss": "^3.3.0 || ^4.1.17"
   },
   "peerDependenciesMeta": {
     "oxfmt": {
       "optional": true
     },
     "oxlint-tsgolint": {
+      "optional": true
+    },
+    "tailwindcss": {
       "optional": true
     }
   },

@@ -23,6 +23,7 @@ TypeScript 7.0.2.
 | `eslint-plugin-react-native`                       | This package's own JS plugin, `react-native/`: a port of v5.0.0's 7 rules plus 8 from the skills[^11] |
 | `@stylistic/eslint-plugin`                         | Same plugin through JS plugins (`padding-line-between-statements` only)                               |
 | `@tanstack/eslint-plugin-query`                    | Same plugin through JS plugins (`flat/recommended` rules, React configs)                              |
+| (new) `eslint-plugin-better-tailwindcss`           | Same plugin through JS plugins, all 15 rules, React configs[^12]                                      |
 | `eslint-config-turbo`                              | `eslint-plugin-turbo` through JS plugins (`./turbo` export)                                           |
 | `eslint-config-prettier`                           | Dropped — nothing to disable                                                                          |
 | Prettier + `prettier-plugin-pkg`                   | Oxfmt (`./oxfmt` export); native `sortPackageJson`                                                    |
@@ -64,6 +65,10 @@ import { baseIgnorePatterns, reactConfig } from "@thyi/oxc-config";
 export default defineConfig({
   extends: [reactConfig],
   ignorePatterns: baseIgnorePatterns,
+  // Your Tailwind CSS entry file (Uniwind: `global.css` at the project root).
+  settings: {
+    "better-tailwindcss": { entryPoint: "global.css" },
+  },
 });
 ```
 
@@ -79,6 +84,10 @@ import { baseIgnorePatterns, reactWebConfig } from "@thyi/oxc-config";
 export default defineConfig({
   extends: [reactWebConfig],
   ignorePatterns: baseIgnorePatterns,
+  // Your Tailwind CSS entry file.
+  settings: {
+    "better-tailwindcss": { entryPoint: "src/styles.css" },
+  },
 });
 ```
 
@@ -266,6 +275,17 @@ eslint.config.js --type-aware` and diff its output against this package.[^1]
   resolver key, so the `conditionNames` the ESLint config passes to the
   TypeScript resolver cannot be set. In a live-types monorepo, `import/*`
   rules may follow `default` into a gitignored `dist/`.
+- **Tailwind classes** (`eslint-plugin-better-tailwindcss` 4.9.1, both React
+  configs): all 15 rules, stylistic ones at `warn` and correctness ones at
+  `error`, as the plugin's own configs set them. They check `className`, the
+  plugin's default helpers (`cn`, `clsx`, `tv`, `cva`, …) and every Uniwind
+  `*ClassName` prop. Set `settings["better-tailwindcss"].entryPoint` to the
+  project's Tailwind CSS file: without it, `no-unknown-classes` checks
+  against Tailwind's default theme and reports every `@theme` token.
+  Overlaps: `no-concatenated-classes` and `react-native/no-dynamic-classnames`
+  report the same runtime-built class; `enforce-consistent-class-order` and
+  Oxfmt's `sortTailwindcss` both sort classes, so turn on only one.
+  `no-restricted-classes` reports nothing until its options list classes.
 - `@tanstack/query/no-void-query-fn` asks for type information, which Oxlint
   does not give JS plugins; expect it to stay silent.
 - `sortPackageJson.sortScripts` defaults to `false` — scripts keep their
@@ -292,3 +312,5 @@ eslint.config.js --type-aware` and diff its output against this package.[^1]
 [^10]: https://github.com/oxc-project/oxc/issues/19437
 
 [^11]: https://oxc.rs/docs/guide/usage/linter/writing-js-plugins.html
+
+[^12]: https://github.com/schoero/eslint-plugin-better-tailwindcss
