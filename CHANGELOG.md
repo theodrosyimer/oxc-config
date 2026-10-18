@@ -1,5 +1,11 @@
 # Changelog
 
+## [4.0.1](https://github.com/theodrosyimer/oxc-config/compare/4.0.0...4.0.1) (2026-10-18)
+
+### 📚 Documentation
+
+* remove the sample CI workflow from the README ([ba806e8](https://github.com/theodrosyimer/oxc-config/commit/ba806e805d5dd8d5fff8479cae5f0da80bf978da))
+
 ## [4.0.0](https://github.com/theodrosyimer/oxc-config/compare/3.2.0...4.0.0) (2026-10-18)
 
 ### ⚠ BREAKING CHANGES
