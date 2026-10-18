@@ -18,6 +18,8 @@ TypeScript 7.0.2.
 | `import/order`                                     | **Oxfmt `sortImports`** — oxc will not implement `import/order`[^4]          |
 | `eslint-plugin-react`, `eslint-plugin-react-hooks` | Oxlint native `react` plugin (includes `rules-of-hooks`/`exhaustive-deps`)   |
 | `eslint-plugin-react-native`                       | Same plugin, loaded through Oxlint **JS plugins** (ESLint-v9 compat)[^5]     |
+| `@stylistic/eslint-plugin`                         | Same plugin through JS plugins (`padding-line-between-statements` only)      |
+| `@tanstack/eslint-plugin-query`                    | Same plugin through JS plugins (`flat/recommended` rules, React configs)     |
 | `eslint-config-turbo`                              | `eslint-plugin-turbo` through JS plugins (`./turbo` export)                  |
 | `eslint-plugin-only-warn`                          | `onlyWarn(config)` helper (`./only-warn` export)                             |
 | `eslint-config-prettier`                           | Dropped — nothing to disable                                                 |
@@ -59,6 +61,21 @@ import { baseIgnorePatterns, reactConfig } from "@thyi/oxc-config";
 
 export default defineConfig({
   extends: [reactConfig],
+  ignorePatterns: baseIgnorePatterns,
+});
+```
+
+### Web-only React (TanStack Start, Vite) — `oxlint.config.ts`
+
+The React config without `eslint-plugin-react-native` and its Expo /
+NativeWind allowances; browser globals instead.
+
+```ts
+import { defineConfig } from "oxlint";
+import { baseIgnorePatterns, reactWebConfig } from "@thyi/oxc-config";
+
+export default defineConfig({
+  extends: [reactWebConfig],
   ignorePatterns: baseIgnorePatterns,
 });
 ```
@@ -292,6 +309,19 @@ eslint.config.js --type-aware` and diff its output against this package.[^1]
   use type-aware linting as long as its tsconfig is TS7-clean.
 - **No home-directory config**: the `~/.prettierrc` `proseWrap` trick has no
   Oxfmt equivalent; set `proseWrap` (or an override) per project.
+- **Rules with no Oxlint port** (enabled in `@thyi/eslint-config` v3, absent
+  here): `import-x/no-unresolved` (the TypeScript checker reports unresolved
+  imports), `import-x/order` (Oxfmt `sortImports`), `no-octal`,
+  `react/jsx-uses-react`, `react/jsx-uses-vars` (Oxlint's `no-unused-vars`
+  reads JSX), `react/prop-types`, `react/no-deprecated`,
+  `react-hooks/config` and `react-hooks/gating`. Every other rule the ESLint
+  presets enable is listed explicitly at the same severity.
+- **No `@repo/source` resolver condition**: Oxlint's settings have no import
+  resolver key, so the `conditionNames` the ESLint config passes to the
+  TypeScript resolver cannot be set. In a live-types monorepo, `import/*`
+  rules may follow `default` into a gitignored `dist/`.
+- `@tanstack/query/no-void-query-fn` asks for type information, which Oxlint
+  does not give JS plugins; expect it to stay silent.
 - `sortPackageJson.sortScripts` defaults to `false` — scripts keep their
   order; flip it per project if wanted.
 

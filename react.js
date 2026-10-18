@@ -9,7 +9,7 @@
  */
 import { fileURLToPath } from "node:url";
 
-import { oxcBase } from "./base.js";
+import { baseJsPlugins, oxcBase } from "./base.js";
 
 /** @typedef {import('oxlint').OxlintConfig} OxlintConfig */
 
@@ -20,6 +20,48 @@ import { oxcBase } from "./base.js";
  * dependency of @thyi/oxc-config, not of the consuming app.
  */
 const reactNativePluginPath = fileURLToPath(import.meta.resolve("eslint-plugin-react-native"));
+
+/** `@tanstack/eslint-plugin-query` runs as a JS plugin, resolved the same way. */
+const tanstackQueryPluginPath = fileURLToPath(import.meta.resolve("@tanstack/eslint-plugin-query"));
+
+/**
+ * JS plugins every React variant loads on top of the base ones. `jsPlugins`
+ * is replaced, not merged, by a config that extends another, hence the spread.
+ */
+/** @type {NonNullable<OxlintConfig['jsPlugins']>} */
+export const reactJsPlugins = [...baseJsPlugins, tanstackQueryPluginPath];
+
+/**
+ * React rules shared by `react` and `react-web`:
+ * - eslint-plugin-react `recommended` rules Oxlint files outside
+ *   `correctness` (or under `suspicious` at warn). `jsx-uses-react`,
+ *   `jsx-uses-vars`, `prop-types` and `no-deprecated` have no Oxlint port.
+ * - eslint-plugin-react-hooks `recommended-latest`, via Oxlint's native
+ *   react plugin. `config` and `gating` (React Compiler settings checks)
+ *   have no Oxlint port.
+ * - @tanstack/eslint-plugin-query `flat/recommended`.
+ */
+/** @type {NonNullable<OxlintConfig['rules']>} */
+export const reactRules = {
+  "react/display-name": "error",
+  "react/jsx-no-comment-textnodes": "error",
+  "react/jsx-no-target-blank": "error",
+  "react/no-unescaped-entities": "error",
+  "react/no-unknown-property": "error",
+  "react/require-render-return": "error",
+  "react/rules-of-hooks": "error",
+  "react/exhaustive-deps": "warn",
+  "react/incompatible-library": "warn",
+  "react/unsupported-syntax": "warn",
+  "react/react-in-jsx-scope": "off",
+  "@tanstack/query/exhaustive-deps": "error",
+  "@tanstack/query/no-rest-destructuring": "warn",
+  "@tanstack/query/stable-query-client": "error",
+  "@tanstack/query/no-unstable-deps": "error",
+  "@tanstack/query/infinite-query-property-order": "error",
+  "@tanstack/query/no-void-query-fn": "error",
+  "@tanstack/query/mutation-property-order": "error",
+};
 
 /**
  * Globals from eslint-plugin-react-native's `environments['react-native']`.
@@ -68,14 +110,10 @@ const reactConfig = {
     typeAware: true,
   },
   plugins: [...(oxcBase.plugins ?? []), "react"],
-  jsPlugins: [reactNativePluginPath],
+  jsPlugins: [...reactJsPlugins, reactNativePluginPath],
   globals: reactNativeGlobals,
   rules: {
-    // eslint-plugin-react-hooks recommended-latest, via Oxlint's native
-    // react plugin.
-    "react/rules-of-hooks": "error",
-    "react/exhaustive-deps": "warn",
-    "react/react-in-jsx-scope": "off",
+    ...reactRules,
     "typescript/no-floating-promises": [
       "error",
       {

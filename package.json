@@ -13,12 +13,35 @@
     "react-native",
     "typescript"
   ],
+  "homepage": "https://github.com/theodrosyimer/oxc-config#readme",
+  "bugs": {
+    "url": "https://github.com/theodrosyimer/oxc-config/issues"
+  },
   "license": "MIT",
   "author": "Theodros Yimer",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/theodrosyimer/oxc-config.git"
   },
+  "files": [
+    "CHANGELOG.md",
+    "base.d.ts",
+    "base.js",
+    "default.d.ts",
+    "default.js",
+    "index.d.ts",
+    "index.js",
+    "only-warn.d.ts",
+    "only-warn.js",
+    "oxfmt.d.ts",
+    "oxfmt.js",
+    "react-web.d.ts",
+    "react-web.js",
+    "react.d.ts",
+    "react.js",
+    "turbo.d.ts",
+    "turbo.js"
+  ],
   "type": "module",
   "main": "index.js",
   "types": "./index.d.ts",
@@ -30,6 +53,10 @@
     "./react": {
       "types": "./react.d.ts",
       "default": "./react.js"
+    },
+    "./react-web": {
+      "types": "./react-web.d.ts",
+      "default": "./react-web.js"
     },
     "./turbo": {
       "types": "./turbo.d.ts",
@@ -52,6 +79,8 @@
     "release": "release-it"
   },
   "dependencies": {
+    "@stylistic/eslint-plugin": "^5.10.0",
+    "@tanstack/eslint-plugin-query": "^5.104.1",
     "eslint-plugin-react-native": "^5.0.0",
     "eslint-plugin-turbo": "^2.10.11"
   },

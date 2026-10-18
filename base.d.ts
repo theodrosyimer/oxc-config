@@ -2,6 +2,7 @@ import type { OxlintConfig } from "oxlint";
 
 export declare const baseIgnorePatterns: NonNullable<OxlintConfig["ignorePatterns"]>;
 export declare const basePlugins: NonNullable<OxlintConfig["plugins"]>;
+export declare const baseJsPlugins: NonNullable<OxlintConfig["jsPlugins"]>;
 export declare const baseCategories: NonNullable<OxlintConfig["categories"]>;
 export declare const baseRules: NonNullable<OxlintConfig["rules"]>;
 export declare const baseTypeAwareRules: NonNullable<OxlintConfig["rules"]>;
