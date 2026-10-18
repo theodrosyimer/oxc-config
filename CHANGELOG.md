@@ -1,5 +1,15 @@
 # Changelog
 
+## [4.1.0](https://github.com/theodrosyimer/oxc-config/compare/4.0.1...4.1.0) (2026-10-18)
+
+### ✨ Features
+
+* add eslint-plugin-better-tailwindcss to the React configs ([679df8f](https://github.com/theodrosyimer/oxc-config/commit/679df8fea9400d5e094cfe6e2de9fee79a02a5c4))
+
+### 📚 Documentation
+
+* add the monorepo setup to the README ([83e65a9](https://github.com/theodrosyimer/oxc-config/commit/83e65a9b2cbb3506ef3dca14dc47489ef227a891))
+
 ## [4.0.1](https://github.com/theodrosyimer/oxc-config/compare/4.0.0...4.0.1) (2026-10-18)
 
 ### 📚 Documentation
