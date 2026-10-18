@@ -181,17 +181,193 @@ client dirs, point the extension at the right binaries via `oxc.path.oxlint` /
 
 Zed, JetBrains, Neovim: see the official editor pages — same LSP binaries.[^6][^7]
 
-## Monorepo notes
+## Monorepo setup (Turborepo + `packages/config`)
 
-- One **root** `oxlint.config.ts` extending this package; per-app tweaks go in
-  nested configs. `options.typeAware`/`options.typeCheck` are **root-only** —
-  never set them in nested configs.[^3]
-- Type-aware linting reads real type info: `pnpm install && pnpm -r build`
-  before `oxlint --type-aware` so workspace `.d.ts` exist.[^3]
-- Keep root `tsconfig.json` from including everything (`"files": []` at root;
-  scoped `include` per package) or tsgolint builds giant programs.[^3]
-- Oxlint respects `.gitignore` automatically; `baseIgnorePatterns` covers the
-  build/tooling dirs on top of that.
+The shared presets live in one workspace package, `packages/config`, next to
+the TypeScript and Vitest presets. Every app and package lints itself through
+turbo with a one-line config; the root lints only its own tooling. Checked on
+a pnpm workspace with `oxlint@1.79.0` and `oxfmt@0.64.0`.
+
+```text
+packages/config/
+├── oxlint/node.js       Node.js / NestJS / CLI preset
+├── oxlint/react.js      Expo / React Native preset
+├── oxlint/react-web.js  web-only React preset
+├── oxfmt/index.js       formatter preset
+└── package.json
+packages/<name>/oxlint.config.ts   export { default } from "@repo/config/oxlint/node";
+apps/<name>/oxlint.config.ts       the React preset + the app's Tailwind entry file
+oxlint.config.ts                   root: the node preset, ignoring packages/ and apps/
+oxfmt.config.ts                    root: the formatter preset, for the whole repository
+```
+
+**1. `packages/config/package.json`** — the presets' dependencies live here.
+
+```jsonc
+{
+  "name": "@repo/config",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./oxlint/*": "./oxlint/*.js",
+    "./oxfmt": "./oxfmt/index.js",
+  },
+  "dependencies": {
+    "@thyi/oxc-config": "^4.0.0",
+    "oxfmt": "catalog:",
+    "oxlint": "catalog:",
+    "oxlint-tsgolint": "catalog:",
+  },
+}
+```
+
+**2. The presets** — plain `.js`: Node.js does not strip TypeScript types from
+files under `node_modules`. Each preset carries `ignorePatterns` itself, and is
+re-exported (never put under `extends`) by the packages, because
+`ignorePatterns` coming through `extends` do not apply.
+
+```js
+// packages/config/oxlint/node.js
+import { defineConfig } from "oxlint";
+import { baseIgnorePatterns, defaultConfig, turboAddon } from "@thyi/oxc-config";
+
+export default defineConfig({
+  extends: [defaultConfig, turboAddon],
+  ignorePatterns: baseIgnorePatterns,
+});
+```
+
+```js
+// packages/config/oxlint/react.js — react-web.js is the same with reactWebConfig
+import { defineConfig } from "oxlint";
+import { baseIgnorePatterns, reactConfig, turboAddon } from "@thyi/oxc-config";
+
+export default defineConfig({
+  extends: [reactConfig, turboAddon],
+  ignorePatterns: baseIgnorePatterns,
+});
+```
+
+```js
+// packages/config/oxfmt/index.js
+import { defineConfig } from "oxfmt";
+import { oxfmtConfig } from "@thyi/oxc-config/oxfmt";
+
+export default defineConfig({ ...oxfmtConfig, proseWrap: "always" });
+```
+
+**3. Each package** — the config, the binaries its scripts call, the scripts.
+
+```ts
+// packages/<name>/oxlint.config.ts
+export { default } from "@repo/config/oxlint/node";
+```
+
+```jsonc
+// packages/<name>/package.json
+{
+  "scripts": {
+    "lint": "oxlint --fix",
+    "lint:check": "oxlint --type-aware --type-check --max-warnings=0",
+  },
+  "devDependencies": {
+    "@repo/config": "workspace:*",
+    "oxlint": "catalog:",
+    "oxlint-tsgolint": "catalog:",
+  },
+}
+```
+
+**4. Each React app** — spread the preset to add the app's Tailwind CSS entry
+file, relative to the app folder (`global.css` for Uniwind). Without it,
+`better-tailwindcss/no-unknown-classes` reports every `@theme` token.
+
+```ts
+// apps/mobile/oxlint.config.ts
+import react from "@repo/config/oxlint/react";
+import { defineConfig } from "oxlint";
+
+export default defineConfig({
+  ...react,
+  settings: { "better-tailwindcss": { entryPoint: "global.css" } },
+});
+```
+
+The app also needs `tailwindcss` in its devDependencies.
+
+**5. The root** — the node preset for the root tooling only.
+
+```ts
+// oxlint.config.ts
+import node from "@repo/config/oxlint/node";
+import { defineConfig } from "oxlint";
+
+export default defineConfig({
+  ...node,
+  ignorePatterns: [...(node.ignorePatterns ?? []), "packages/", "apps/", "docs/"],
+});
+```
+
+```ts
+// oxfmt.config.ts
+export { default } from "@repo/config/oxfmt";
+```
+
+```jsonc
+// package.json
+{
+  "scripts": {
+    "lint": "oxlint --fix --disable-nested-config && turbo run lint",
+    "lint:check": "oxlint --type-aware --type-check --max-warnings=0 --disable-nested-config && turbo run lint:check",
+    "format": "oxfmt",
+    "format:check": "oxfmt --check",
+  },
+  "devDependencies": {
+    "@repo/config": "workspace:*",
+    "oxfmt": "catalog:",
+    "oxlint": "catalog:",
+    "oxlint-tsgolint": "catalog:",
+  },
+}
+```
+
+`--disable-nested-config` is required on the root run: without it, Oxlint
+applies each package's own `oxlint.config.ts` to that package's folder and the
+root's `packages/` ignore has no effect, so the root lints every package
+again. Never put the flag in a package script.
+
+One root `oxfmt` formats the whole repository, and still uses a package's own
+`oxfmt.config.ts` for that package's files when one exists, so packages need
+no format scripts.
+
+**6. `turbo.json`**
+
+```jsonc
+{
+  "tasks": {
+    "lint": { "dependsOn": ["^lint"] },
+    "lint:check": { "dependsOn": ["^build", "^lint:check"] },
+  },
+}
+```
+
+`^build` because type-aware linting reads the built `.d.ts` of the workspace
+packages a package imports.[^3]
+
+**7. `.gitignore`** lists `node_modules` and the build folders: Oxfmt skips what
+`.gitignore` lists (it formatted `dist/` when it was not listed), and Oxlint
+reads it too, on top of `baseIgnorePatterns`.
+
+**Notes**
+
+- `options.typeAware` / `options.typeCheck` only work in the config at the
+  folder Oxlint runs from — each package's when turbo runs it.[^3]
+- Keep the root `tsconfig.json` from including everything (`"files": []` at
+  the root, a scoped `include` per package), or tsgolint builds giant
+  programs.[^3] A root solution file still type-checks root tooling files such
+  as `vitest.config.ts`.
+- `baseIgnorePatterns` covers the build and tooling folders on top of
+  `.gitignore`.
 
 ## Migration checklist (from eslint-config v3 + Prettier)
 
