@@ -35,7 +35,9 @@ pnpm add -D oxlint oxfmt oxlint-tsgolint @thyi/oxc-config
 ```
 
 `oxlint-tsgolint` is only needed where type-aware linting runs (skip it for
-pure-JS packages).
+pure-JS packages). The import rules parse TypeScript with
+`@typescript-eslint/parser`, which needs `typescript` 6.0.x installed in the
+project (`pnpm add -D typescript@~6.0.3`), as with `@thyi/eslint-config`.
 
 ## Usage
 
@@ -399,8 +401,8 @@ eslint.config.js --type-aware` and diff its output against this package.[^1]
 
 ## Known caveats
 
-- **JS plugins are alpha.**[^5] `turbo/*`, `@stylistic/*`, `@tanstack/query/*`
-  and `react-hooks-js/*` rules were verified against the ESLint v9 flat API
+- **JS plugins are alpha.**[^5] `turbo/*`, `@stylistic/*`, `@tanstack/query/*`,
+  `react-hooks-js/*`, `import-x-js/*` and `better-tailwindcss/*` rules were verified against the ESLint v9 flat API
   (which is what Oxlint implements), with these exact options — but none of
   these plugins is on oxc's conformance-tested list. After first install, run `oxlint` on a file with a known violation
   (undeclared env var) to confirm the bridge end-to-end.
@@ -461,6 +463,10 @@ eslint.config.js --type-aware` and diff its output against this package.[^1]
   resolves. Put `baseSettings` in the root config's `settings`: Oxlint passes
   only the root config's settings to JS plugins. Its TypeScript parser needs
   `typescript` 6.0.x installed, as with `@thyi/eslint-config`.
+  Cost, measured on 94 files with type-aware linting: about 1.9 s with
+  import-x against 0.7 s with Oxlint's native `import` rules (ESLint with
+  `@thyi/eslint-config`: 2.9–3.5 s). The native rules come back once Oxlint's
+  resolver reads `customConditions` (oxc-project/oxc#20704, #13258).
 - `@tanstack/query/no-void-query-fn` asks for type information, which Oxlint
   does not give JS plugins; expect it to stay silent.
 - `sortPackageJson.sortScripts` defaults to `false` — scripts keep their
