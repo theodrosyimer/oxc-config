@@ -42,3 +42,8 @@ jobs:
       # Lint + typecheck in one pass (replaces `tsc --noEmit`)
       - name: Lint package code
         run: pnpm oxlint --type-aware --type-check --max-warnings=0
+
+      # The React Native plugin's rules against eslint-plugin-react-native's
+      # own test cases.
+      - name: Test the React Native plugin
+        run: pnpm test

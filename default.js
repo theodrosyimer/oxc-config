@@ -1,6 +1,6 @@
 /**
  * Default config: Node.js / backend (NestJS, CLI, scripts).
- * Parity source: @thyi/eslint-config v2.8.5 `default.js`.
+ * Parity source: @thyi/eslint-config v3.0.1 `default.js`.
  */
 import { oxcBase } from "./base.js";
 

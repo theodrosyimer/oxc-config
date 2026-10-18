@@ -1,29 +1,31 @@
 # @thyi/oxc-config
 
 Oxlint + Oxfmt config for TypeScript, Node.js (NestJS/CLI), React and React
-Native (Expo). Successor of `@thyi/eslint-config` v2.8.5 + the shared Prettier
+Native (Expo). Successor of `@thyi/eslint-config` v3.0.1 + the shared Prettier
 config — same rules, same severities, same path-based exceptions, ported to the
-Oxc toolchain.[^1][^2]
+Oxc toolchain.[^1][^2] The rules with no Oxlint port are listed under
+[Known caveats](#known-caveats).
 
 Validated against `oxlint@1.79.0`, `oxfmt@0.64.0`, `oxlint-tsgolint`,
 TypeScript 7.0.2.
 
 ## What replaced what
 
-| Before                                             | After                                                                        |
-| -------------------------------------------------- | ---------------------------------------------------------------------------- |
-| eslint core + `@eslint/js` recommended             | Oxlint built-in rules; `correctness` (error) + `suspicious` (warn) baseline  |
-| typescript-eslint (incl. type-aware presets)       | Oxlint `typescript/*` rules; type-aware via `oxlint-tsgolint` (tsgolint)[^3] |
-| `eslint-plugin-import` + TS resolver               | Oxlint `import` plugin (tsconfig-aware resolution built in)                  |
-| `import/order`                                     | **Oxfmt `sortImports`** — oxc will not implement `import/order`[^4]          |
-| `eslint-plugin-react`, `eslint-plugin-react-hooks` | Oxlint native `react` plugin (includes `rules-of-hooks`/`exhaustive-deps`)   |
-| `eslint-plugin-react-native`                       | Same plugin, loaded through Oxlint **JS plugins** (ESLint-v9 compat)[^5]     |
-| `@stylistic/eslint-plugin`                         | Same plugin through JS plugins (`padding-line-between-statements` only)      |
-| `@tanstack/eslint-plugin-query`                    | Same plugin through JS plugins (`flat/recommended` rules, React configs)     |
-| `eslint-config-turbo`                              | `eslint-plugin-turbo` through JS plugins (`./turbo` export)                  |
-| `eslint-plugin-only-warn`                          | `onlyWarn(config)` helper (`./only-warn` export)                             |
-| `eslint-config-prettier`                           | Dropped — nothing to disable                                                 |
-| Prettier + `prettier-plugin-pkg`                   | Oxfmt (`./oxfmt` export); native `sortPackageJson`                           |
+| Before                                             | After                                                                                                 |
+| -------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| eslint core + `@eslint/js` recommended             | Oxlint built-in rules, each listed by name; every category is off                                     |
+| typescript-eslint (incl. type-aware presets)       | Oxlint `typescript/*` rules; type-aware via `oxlint-tsgolint` (tsgolint)[^3]                          |
+| `eslint-plugin-import-x` + TS resolver             | Oxlint `import` plugin (tsconfig-aware resolution built in)                                           |
+| `import/order`                                     | **Oxfmt `sortImports`** — oxc will not implement `import/order`[^4]                                   |
+| `eslint-plugin-react`, `eslint-plugin-react-hooks` | Oxlint native `react` plugin; `eslint-plugin-react-hooks` as a JS plugin for 2 rules                  |
+| (new) `eslint-plugin-react-perf` `recommended`     | Oxlint native `react-perf` plugin                                                                     |
+| `@eslint/compat` (`fixupPluginRules`)              | Dropped — Oxlint runs the JS plugins without it                                                       |
+| `eslint-plugin-react-native`                       | This package's own JS plugin, `react-native/`: a port of v5.0.0's 7 rules plus 8 from the skills[^11] |
+| `@stylistic/eslint-plugin`                         | Same plugin through JS plugins (`padding-line-between-statements` only)                               |
+| `@tanstack/eslint-plugin-query`                    | Same plugin through JS plugins (`flat/recommended` rules, React configs)                              |
+| `eslint-config-turbo`                              | `eslint-plugin-turbo` through JS plugins (`./turbo` export)                                           |
+| `eslint-config-prettier`                           | Dropped — nothing to disable                                                                          |
+| Prettier + `prettier-plugin-pkg`                   | Oxfmt (`./oxfmt` export); native `sortPackageJson`                                                    |
 
 ## Install (per project)
 
@@ -67,8 +69,8 @@ export default defineConfig({
 
 ### Web-only React (TanStack Start, Vite) — `oxlint.config.ts`
 
-The React config without `eslint-plugin-react-native` and its Expo /
-NativeWind allowances; browser globals instead.
+The React config without the React Native plugin (`react-native/`) and its
+Expo allowances; browser globals instead.
 
 ```ts
 import { defineConfig } from "oxlint";
@@ -89,19 +91,6 @@ import defaultConfig, { baseIgnorePatterns, turboAddon } from "@thyi/oxc-config"
 export default defineConfig({
   extends: [defaultConfig, turboAddon],
   ignorePatterns: baseIgnorePatterns,
-});
-```
-
-### only-warn mode (never fail local lint; CI stays strict)
-
-```ts
-import { defineConfig } from "oxlint";
-import { baseIgnorePatterns, onlyWarn, reactConfig } from "@thyi/oxc-config";
-
-export default defineConfig({
-  extends: [onlyWarn(reactConfig)],
-  ignorePatterns: baseIgnorePatterns,
-  options: { maxWarnings: 0 }, // optional: strict exit code even in warn mode
 });
 ```
 
@@ -177,7 +166,7 @@ One extension covers both tools: `oxc.oxc-vscode`. It runs `oxlint --lsp` /
 ```
 
 Type-aware diagnostics in-editor: enabled by `options.typeAware: true` in the
-root config (already set by `defaultConfig`/`reactConfig`).[^3] For nested
+root config (already set by `defaultConfig`/`reactConfig`/`reactWebConfig`).[^3] For nested
 client dirs, point the extension at the right binaries via `oxc.path.oxlint` /
 `oxc.path.tsgolint`.
 
@@ -273,15 +262,17 @@ instead, which is the cheapest of the three checks.
 - Oxlint respects `.gitignore` automatically; `baseIgnorePatterns` covers the
   build/tooling dirs on top of that.
 
-## Migration checklist (from eslint-config v2.8.x + Prettier)
+## Migration checklist (from eslint-config v3 + Prettier)
 
-1. Remove: `eslint`, `@eslint/js`, `typescript-eslint`,
-   `@typescript-eslint/*`, `eslint-plugin-import`,
-   `eslint-import-resolver-typescript`, `eslint-config-prettier`,
-   `eslint-plugin-only-warn`, `eslint-plugin-react`,
-   `eslint-plugin-react-hooks`, `eslint-config-turbo`, `prettier`,
+1. Remove: `@thyi/eslint-config`, `eslint`, `prettier`,
    `prettier-plugin-pkg`, `eslint.config.*`, `prettier.config.*`,
-   `.prettierignore` (fold into `ignorePatterns`).
+   `.prettierignore` (fold into `ignorePatterns`), and any of these a
+   project installed itself: `@eslint/js`, `@eslint/compat`,
+   `typescript-eslint`, `@typescript-eslint/*`, `eslint-plugin-import-x`,
+   `eslint-import-resolver-typescript`, `eslint-config-prettier`,
+   `eslint-plugin-react`, `eslint-plugin-react-hooks`,
+   `eslint-plugin-react-native`, `@stylistic/eslint-plugin`,
+   `@tanstack/eslint-plugin-query`, `eslint-config-turbo`, `globals`.
 2. Add configs above; update scripts, lint-staged, CI, `.vscode/`.
 3. Run `pnpm oxfmt` once; commit; add the SHA to `.git-blame-ignore-revs`
    (expect `package.json` key-order churn — native `sortPackageJson` uses a
@@ -294,11 +285,35 @@ eslint.config.js --type-aware` and diff its output against this package.[^1]
 
 ## Known caveats
 
-- **JS plugins are alpha.**[^5] `react-native/*` and `turbo/*` rules were
-  verified against the ESLint v9 flat API (which is what Oxlint implements),
-  with these exact options — but neither plugin is on oxc's conformance-tested
-  list. After first install, run `oxlint` on a file with a known violation
-  (inline style / undeclared env var) to confirm the bridge end-to-end.
+- **JS plugins are alpha.**[^5] `turbo/*`, `@stylistic/*`, `@tanstack/query/*`
+  and `react-hooks-js/*` rules were verified against the ESLint v9 flat API
+  (which is what Oxlint implements), with these exact options — but none of
+  these plugins is on oxc's conformance-tested list. After first install, run `oxlint` on a file with a known violation
+  (undeclared env var) to confirm the bridge end-to-end.
+- **The React Native plugin** (`react-native/`) is a port of
+  eslint-plugin-react-native v5.0.0 (MIT, `react-native/LICENSE`) to Oxlint's
+  `createOnce` API.[^11] Same rule names, options, messages and fixes; its
+  tests are that plugin's own 114 test cases, run with Oxlint's `RuleTester`
+  (`pnpm test`). `eslintCompatPlugin` also makes it load in ESLint.
+- **React Native rules from the skills** (`reactConfig` only, all `error`;
+  every message ends with "Fix: …"):
+
+  | Rule                                      | Reports                                                                                         |
+  | ----------------------------------------- | ----------------------------------------------------------------------------------------------- |
+  | `react-native/no-falsy-and`               | `{value && <X />}` children whose condition is not a boolean (crash on `""` / `0`)              |
+  | `react-native/no-raw-palette-classes`     | raw colors, numeric spacing, default shadows, `[…]` values in `*className` (rn-patterns tokens) |
+  | `react-native/no-dynamic-classnames`      | class names built at runtime: `` `bg-${color}-500` ``, `'bg-' + color`                          |
+  | `react-native/with-uniwind-module-scope`  | `withUniwind()` inside a function, or around a react-native / Reanimated component              |
+  | `react-native/scrollview-content-padding` | padding classes on a ScrollView's `className` instead of `contentContainerClassName`            |
+  | `react-native/no-legacy-shadow`           | `shadowColor` / `shadowOffset` / `shadowOpacity` / `shadowRadius` / `elevation`                 |
+  | `react-native/animate-transform-opacity`  | `width`, `height`, `top`, `left`, `margin*`, `padding*` returned by `useAnimatedStyle`          |
+
+  `react-native/no-banned-imports` bans `nativewind`, and `TouchableOpacity`,
+  `TouchableHighlight`, `Image`, `SafeAreaView` and `KeyboardAvoidingView`
+  from `react-native`, with the replacement in the message itself.
+  The StyleSheet rules (`sort-styles`, `no-unused-styles`, …) stay on for code
+  that uses React Native's own styling.
+
 - **`no-use-before-define` parity**: oxc has open issues where behavior
   diverges from typescript-eslint (missed references from inner functions;
   config not always honored).[^9][^10] If a divergence bites, alias the
@@ -309,13 +324,22 @@ eslint.config.js --type-aware` and diff its output against this package.[^1]
   use type-aware linting as long as its tsconfig is TS7-clean.
 - **No home-directory config**: the `~/.prettierrc` `proseWrap` trick has no
   Oxfmt equivalent; set `proseWrap` (or an override) per project.
-- **Rules with no Oxlint port** (enabled in `@thyi/eslint-config` v3, absent
-  here): `import-x/no-unresolved` (the TypeScript checker reports unresolved
-  imports), `import-x/order` (Oxfmt `sortImports`), `no-octal`,
-  `react/jsx-uses-react`, `react/jsx-uses-vars` (Oxlint's `no-unused-vars`
-  reads JSX), `react/prop-types`, `react/no-deprecated`,
-  `react-hooks/config` and `react-hooks/gating`. Every other rule the ESLint
-  presets enable is listed explicitly at the same severity.
+- **Rules Oxlint has no port for** (enabled in `@thyi/eslint-config` v3.0.1)
+  and what covers them here:
+
+  | ESLint rule                                        | Here                                                                                                                  |
+  | -------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+  | `react/prop-types`                                 | left out: it checks JavaScript props, and TypeScript types them                                                       |
+  | `react/no-deprecated`                              | partly: `react/no-unsafe` with `checkAliases` reports the deprecated lifecycle methods, not the other deprecated APIs |
+  | `react-hooks/config`, `react-hooks/gating`         | eslint-plugin-react-hooks itself, as the `react-hooks-js` JS plugin                                                   |
+  | `import-x/no-unresolved`                           | `--type-check` (TS2307)                                                                                               |
+  | `import-x/order`                                   | Oxfmt `sortImports`                                                                                                   |
+  | `no-octal`, `no-dupe-args` (JavaScript files only) | Oxlint's parser rejects both                                                                                          |
+  | `react/jsx-uses-react`, `react/jsx-uses-vars`      | not needed: `no-unused-vars` counts JSX use                                                                           |
+
+  Every other rule the ESLint presets enable is listed explicitly at the same
+  severity, and no rule outside that list is on.
+
 - **No `@repo/source` resolver condition**: Oxlint's settings have no import
   resolver key, so the `conditionNames` the ESLint config passes to the
   TypeScript resolver cannot be set. In a live-types monorepo, `import/*`
@@ -344,3 +368,5 @@ eslint.config.js --type-aware` and diff its output against this package.[^1]
 [^9]: https://github.com/oxc-project/oxc/issues/19504
 
 [^10]: https://github.com/oxc-project/oxc/issues/19437
+
+[^11]: https://oxc.rs/docs/guide/usage/linter/writing-js-plugins.html

@@ -1,5 +1,5 @@
 {
-  "$schema": "https://unpkg.com/release-it@19/schema/release-it.json",
+  "$schema": "https://unpkg.com/release-it@21/schema/release-it.json",
   "git": {
     "requireBranch": "main",
     "commitMessage": "chore(release): release v${version}",
@@ -12,10 +12,10 @@
       "git pull"
     ],
     "after:bump": ["echo '📦 Version bumped to ${version}, preparing for trusted publish...'"],
-    "after:npm:publish": ["echo '✅ Package published with automatic provenance attestation'"],
+    "after:npm:publish": ["echo '✅ Published v${version} to npm'"],
     "after:release": [
-      "echo '🎉 Successfully released v${version} with provenance!'",
-      "echo '🔍 Verify provenance at: https://npmjs.com/package/${npm.name}'"
+      "echo '🎉 Released v${version} (tag and GitHub release); the CI Publish step sends it to npm with provenance'",
+      "echo '🔍 npm page: https://npmjs.com/package/${npm.name}'"
     ]
   },
   "github": {

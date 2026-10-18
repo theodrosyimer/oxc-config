@@ -1,7 +1,7 @@
 /**
  * Base building blocks shared by every @thyi/oxc-config variant.
  *
- * Parity source: @thyi/eslint-config v2.8.5 `base.js`.
+ * Parity source: @thyi/eslint-config v3.0.1 `base.js`.
  * Docs: https://oxc.rs/docs/guide/usage/linter/config
  *
  * NOTE: this package ships plain ESM `.js` on purpose. Oxlint loads
@@ -56,9 +56,11 @@ export const baseIgnorePatterns = [
  * Built-in plugins. Setting `plugins` overwrites Oxlint's default set,
  * so every wanted plugin must be listed explicitly.
  * `eslint` core rules are always available and are not a plugin entry.
+ * Only the plugins the ESLint config has an equivalent for: no `unicorn`,
+ * no `oxc`.
  */
 /** @type {NonNullable<OxlintConfig['plugins']>} */
-export const basePlugins = ["typescript", "import", "unicorn", "oxc"];
+export const basePlugins = ["typescript", "import"];
 
 /**
  * `@stylistic/eslint-plugin` has no native port; its one rule in use
@@ -71,16 +73,22 @@ const stylisticPluginPath = fileURLToPath(import.meta.resolve("@stylistic/eslint
 export const baseJsPlugins = [stylisticPluginPath];
 
 /**
- * Category baseline replacing the ESLint preset stack
- * (`eslint:recommended` + tseslint recommendedTypeChecked/stylisticTypeChecked).
- * Oxlint has no 1:1 preset concept; `correctness` (error, the default) is the
- * closest equivalent of "recommended", `suspicious` at warn adds the
- * probably-wrong tier without failing builds.
+ * Every category off, `correctness` included (Oxlint turns it on by
+ * default). Oxlint's categories do not match the ESLint preset stack
+ * (`eslint:recommended` + tseslint recommendedTypeChecked/stylisticTypeChecked
+ * + import-x recommended): they add rules the ESLint config never enables.
+ * Every rule is listed by name below instead, so the two configs enable the
+ * same rules at the same severity.
  */
 /** @type {NonNullable<OxlintConfig['categories']>} */
 export const baseCategories = {
-  correctness: "error",
-  suspicious: "warn",
+  correctness: "off",
+  nursery: "off",
+  pedantic: "off",
+  perf: "off",
+  restriction: "off",
+  style: "off",
+  suspicious: "off",
 };
 
 /** @type {NonNullable<OxlintConfig['rules']>} */
@@ -93,11 +101,59 @@ export const baseRules = {
   "preserve-caught-error": ["error", { requireCatchParameter: true }],
   // Member sorting only — declaration ordering/grouping is Oxfmt sortImports.
   "sort-imports": ["error", { ignoreDeclarationSort: true }],
-  // Rules the ESLint preset stack (`eslint:recommended`, tseslint
-  // `recommendedTypeChecked` + `stylisticTypeChecked`, import-x `recommended`)
-  // turns on that Oxlint files outside `correctness`/`suspicious`, or files
-  // under `suspicious` at warn where the preset said error. Listed one by one
-  // so the two configs enable the same rules at the same severity.
+  // The rest of the ESLint preset stack (`eslint:recommended`, tseslint
+  // `recommendedTypeChecked` + `stylisticTypeChecked`, import-x
+  // `recommended`), one rule per line at the preset's severity.
+  "for-direction": "error",
+  "no-async-promise-executor": "error",
+  "no-compare-neg-zero": "error",
+  "no-cond-assign": "error",
+  "no-constant-binary-expression": "error",
+  "no-constant-condition": "error",
+  "no-control-regex": "error",
+  "no-debugger": "error",
+  "no-delete-var": "error",
+  "no-dupe-else-if": "error",
+  "no-duplicate-case": "error",
+  "no-empty-character-class": "error",
+  "no-empty-pattern": "error",
+  "no-empty-static-block": "error",
+  "no-ex-assign": "error",
+  "no-extra-boolean-cast": "error",
+  "no-global-assign": "error",
+  "no-invalid-regexp": "error",
+  "no-irregular-whitespace": "error",
+  "no-loss-of-precision": "error",
+  "no-misleading-character-class": "error",
+  "no-nonoctal-decimal-escape": "error",
+  "no-self-assign": "error",
+  "no-shadow-restricted-names": "error",
+  "no-sparse-arrays": "error",
+  "no-unassigned-vars": "error",
+  "no-unsafe-finally": "error",
+  "no-unsafe-optional-chaining": "error",
+  "no-unused-expressions": "error",
+  "no-unused-labels": "error",
+  "no-unused-private-class-members": "error",
+  "no-useless-backreference": "error",
+  "no-useless-catch": "error",
+  "no-useless-escape": "error",
+  "require-yield": "error",
+  "use-isnan": "error",
+  "valid-typeof": "error",
+  "import/default": "error",
+  "import/namespace": "error",
+  "import/no-named-as-default": "warn",
+  "import/no-named-as-default-member": "warn",
+  "typescript/no-duplicate-enum-values": "error",
+  "typescript/no-misused-new": "error",
+  "typescript/no-require-imports": "error",
+  "typescript/no-this-alias": "error",
+  "typescript/no-unsafe-declaration-merging": "error",
+  "typescript/no-wrapper-object-types": "error",
+  "typescript/prefer-as-const": "error",
+  "typescript/prefer-namespace-keyword": "error",
+  "typescript/triple-slash-reference": "error",
   "no-array-constructor": "error",
   "no-case-declarations": "error",
   "no-empty": "error",
@@ -131,7 +187,7 @@ export const baseRules = {
   "typescript/method-signature-style": "error",
   // Index-signature access has ONE owner and it is the compiler:
   // `noPropertyAccessFromIndexSignature`. `dot-notation` demands the
-  // opposite; it is off by category already and pinned so it stays off.
+  // opposite; it is pinned off so it stays off.
   "typescript/dot-notation": "off",
   "@stylistic/padding-line-between-statements": [
     "error",
@@ -150,10 +206,7 @@ export const baseRules = {
   // it, guard it where the guard is reachable, or carry the value instead of
   // reaching back for it.
   //
-  // In Oxlint, `no-non-null-asserted-optional-chain` and
-  // `no-extra-non-null-assertion` are `correctness` (on by default); the other
-  // two are `restriction` (off by default). All four are pinned here so a
-  // category reshuffle cannot silently drop them. None need type information.
+  // None of the four need type information.
   "typescript/no-non-null-assertion": "error",
   "typescript/no-non-null-asserted-nullish-coalescing": "error",
   "typescript/no-non-null-asserted-optional-chain": "error",
@@ -191,8 +244,19 @@ export const baseTypeAwareRules = {
   "typescript/no-unnecessary-condition": "error",
   "typescript/no-unsafe-argument": "warn",
   "typescript/require-await": "off",
-  // recommendedTypeChecked + stylisticTypeChecked rules outside the enabled
-  // categories (or under `suspicious` at warn), same reason as in baseRules.
+  // The rest of recommendedTypeChecked + stylisticTypeChecked, one rule per
+  // line at the preset's severity.
+  "typescript/await-thenable": "error",
+  "typescript/no-array-delete": "error",
+  "typescript/no-base-to-string": "error",
+  "typescript/no-duplicate-type-constituents": "error",
+  "typescript/no-floating-promises": "error",
+  "typescript/no-for-in-array": "error",
+  "typescript/no-implied-eval": "error",
+  "typescript/no-redundant-type-constituents": "error",
+  "typescript/no-unsafe-unary-minus": "error",
+  "typescript/restrict-template-expressions": "error",
+  "typescript/unbound-method": "error",
   "typescript/no-unnecessary-type-assertion": "error",
   "typescript/no-unsafe-assignment": "error",
   "typescript/no-unsafe-call": "error",
@@ -224,33 +288,23 @@ export const typeAwareOffForJs = {
   "prefer-rest-params": "off",
   "prefer-spread": "off",
   "typescript/await-thenable": "off",
-  "typescript/consistent-return": "off",
   "typescript/no-array-delete": "off",
   "typescript/no-base-to-string": "off",
   "typescript/no-duplicate-type-constituents": "off",
   "typescript/no-floating-promises": "off",
   "typescript/no-for-in-array": "off",
   "typescript/no-implied-eval": "off",
-  "typescript/no-meaningless-void-operator": "off",
   "typescript/no-misused-promises": "off",
-  "typescript/no-misused-spread": "off",
   "typescript/no-redundant-type-constituents": "off",
-  "typescript/no-unnecessary-boolean-literal-compare": "off",
   "typescript/no-unnecessary-condition": "off",
-  "typescript/no-unnecessary-template-expression": "off",
-  "typescript/no-unnecessary-type-arguments": "off",
   "typescript/no-unnecessary-type-assertion": "off",
-  "typescript/no-unnecessary-type-conversion": "off",
-  "typescript/no-unnecessary-type-parameters": "off",
   "typescript/no-unsafe-argument": "off",
   "typescript/no-unsafe-assignment": "off",
   "typescript/no-unsafe-call": "off",
   "typescript/no-unsafe-enum-comparison": "off",
   "typescript/no-unsafe-member-access": "off",
   "typescript/no-unsafe-return": "off",
-  "typescript/no-unsafe-type-assertion": "off",
   "typescript/no-unsafe-unary-minus": "off",
-  "typescript/no-useless-default-assignment": "off",
   "typescript/non-nullable-type-assertion-style": "off",
   "typescript/only-throw-error": "off",
   "typescript/prefer-find": "off",
@@ -260,10 +314,38 @@ export const typeAwareOffForJs = {
   "typescript/prefer-promise-reject-errors": "off",
   "typescript/prefer-regexp-exec": "off",
   "typescript/prefer-string-starts-ends-with": "off",
-  "typescript/require-array-sort-compare": "off",
   "typescript/restrict-plus-operands": "off",
   "typescript/restrict-template-expressions": "off",
   "typescript/unbound-method": "off",
+};
+
+/**
+ * The `eslint:recommended` rules typescript-eslint's `eslint-recommended`
+ * turns off for TypeScript files (the compiler covers them), so ESLint runs
+ * them on JavaScript files only, plus `import-x/named`, which import-x's
+ * `typescript` preset turns off for TypeScript. `no-dupe-args` has no
+ * Oxlint port.
+ */
+/** @type {NonNullable<OxlintConfig['rules']>} */
+export const jsOnlyRules = {
+  "constructor-super": "error",
+  "getter-return": "error",
+  "no-class-assign": "error",
+  "no-const-assign": "error",
+  "no-dupe-class-members": "error",
+  "no-dupe-keys": "error",
+  "no-func-assign": "error",
+  "no-import-assign": "error",
+  "no-new-native-nonconstructor": "error",
+  "no-obj-calls": "error",
+  "no-redeclare": "error",
+  "no-setter-return": "error",
+  "no-this-before-super": "error",
+  "no-undef": "error",
+  "no-unreachable": "error",
+  "no-unsafe-negation": "error",
+  "no-with": "error",
+  "import/named": "error",
 };
 
 /** @type {NonNullable<OxlintConfig['overrides']>} */
@@ -287,7 +369,7 @@ export const baseOverrides = [
   {
     // JavaScript-specific overrides (disable type-checked rules).
     files: ["**/*.js", "**/*.cjs", "**/*.mjs"],
-    rules: typeAwareOffForJs,
+    rules: { ...typeAwareOffForJs, ...jsOnlyRules },
   },
   {
     // Third-party interop — the one place `as` is allowed.

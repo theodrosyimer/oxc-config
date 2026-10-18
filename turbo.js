@@ -1,6 +1,6 @@
 /**
  * Turborepo addon: `turbo/no-undeclared-env-vars` as a JS plugin.
- * Parity source: @thyi/eslint-config v2.8.5 `turbo.js`
+ * Parity source: @thyi/eslint-config v3.0.1 `turbo.js`
  * (eslint-config-turbo enables exactly this one rule).
  *
  * Merge it into a root config via `extends`:

@@ -78,6 +78,9 @@ jobs:
       - name: Lint and typecheck (oxlint, replaces `tsc --noEmit`)
         run: pnpm oxlint --type-aware --type-check --max-warnings=0
 
+      - name: Test the React Native plugin
+        run: pnpm test
+
       - name: Verify dependency integrity
         # pnpm-native: `npm audit signatures` FAILS on a pnpm-installed tree
         # (verified: "npm error Failed to download"); `pnpm audit signatures`
@@ -98,13 +101,18 @@ jobs:
       # ─────────────────────────────────────────────────────────────────────
       # BOOTSTRAP — only if OIDC cannot be used.
       #
+      # Already done for @thyi/oxc-config: 3.2.0 was published locally with
+      # release-it on 2026-10-18. Kept for reference when starting a new
+      # package.
+      #
       # A) FIRST-EVER PUBLISH of a new package (OIDC impossible by design:
       #    npm cannot configure a trusted publisher for a package that does
       #    not exist yet — npm/cli#8544). Requires a granular automation
       #    token stored as the NPM_TOKEN repo secret. Delete the secret and
       #    re-comment after the first publish + trusted-publisher setup.
       #    (Preferred alternative: publish the first version locally from the
-      #    release tag — `git checkout vX.Y.Z && pnpm publish --access public`
+      #    release tag — `git checkout X.Y.Z && pnpm publish --access public`
+      #    (tags have no `v` prefix here)
       #    — and keep tokens out of CI entirely.)
       #
       # - name: Publish (bootstrap, token-based)

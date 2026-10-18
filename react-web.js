@@ -1,9 +1,9 @@
 /**
  * React Web config: web-only React apps (TanStack Start, Vite).
- * Parity source: @thyi/eslint-config v3 `react-web.js`.
+ * Parity source: @thyi/eslint-config v3.0.1 `react-web.js`.
  *
- * The React config without eslint-plugin-react-native, its globals, and its
- * Expo / NativeWind allowances; browser globals instead.
+ * The React config without the React Native plugin (./react-native/), its
+ * globals, and its Expo allowances; browser globals instead.
  */
 import { oxcBase } from "./base.js";
 import { reactJsPlugins, reactRules } from "./react.js";
@@ -16,7 +16,7 @@ const reactWebConfig = {
   options: {
     typeAware: true,
   },
-  plugins: [...(oxcBase.plugins ?? []), "react"],
+  plugins: [...(oxcBase.plugins ?? []), "react", "react-perf"],
   jsPlugins: reactJsPlugins,
   env: {
     node: true,
@@ -40,6 +40,14 @@ const reactWebConfig = {
       },
     ],
   },
+  overrides: [
+    {
+      files: ["**/*.tsx", "**/*.jsx"],
+      rules: {
+        "react/react-in-jsx-scope": "off",
+      },
+    },
+  ],
 };
 
 export default reactWebConfig;

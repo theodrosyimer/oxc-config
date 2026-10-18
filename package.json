@@ -31,8 +31,6 @@
     "default.js",
     "index.d.ts",
     "index.js",
-    "only-warn.d.ts",
-    "only-warn.js",
     "oxfmt.d.ts",
     "oxfmt.js",
     "react-web.d.ts",
@@ -40,7 +38,9 @@
     "react.d.ts",
     "react.js",
     "turbo.d.ts",
-    "turbo.js"
+    "turbo.js",
+    "react-native/",
+    "!react-native/**/*.test.js"
   ],
   "type": "module",
   "main": "index.js",
@@ -62,10 +62,6 @@
       "types": "./turbo.d.ts",
       "default": "./turbo.js"
     },
-    "./only-warn": {
-      "types": "./only-warn.d.ts",
-      "default": "./only-warn.js"
-    },
     "./oxfmt": {
       "types": "./oxfmt.d.ts",
       "default": "./oxfmt.js"
@@ -76,17 +72,20 @@
     "tag": "latest"
   },
   "scripts": {
-    "release": "release-it"
+    "release": "release-it",
+    "test": "vitest run"
   },
   "dependencies": {
+    "@oxlint/plugins": "^1.88.0",
     "@stylistic/eslint-plugin": "^5.10.0",
     "@tanstack/eslint-plugin-query": "^5.104.1",
-    "eslint-plugin-react-native": "^5.0.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-turbo": "^2.10.11"
   },
   "devDependencies": {
     "@release-it/conventional-changelog": "12.0.0",
-    "release-it": "21.0.2"
+    "release-it": "21.0.2",
+    "vitest": "^5.0.5"
   },
   "peerDependencies": {
     "oxfmt": "^0.64.0",

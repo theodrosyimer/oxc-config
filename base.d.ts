@@ -7,5 +7,6 @@ export declare const baseCategories: NonNullable<OxlintConfig["categories"]>;
 export declare const baseRules: NonNullable<OxlintConfig["rules"]>;
 export declare const baseTypeAwareRules: NonNullable<OxlintConfig["rules"]>;
 export declare const typeAwareOffForJs: NonNullable<OxlintConfig["rules"]>;
+export declare const jsOnlyRules: NonNullable<OxlintConfig["rules"]>;
 export declare const baseOverrides: NonNullable<OxlintConfig["overrides"]>;
 export declare const oxcBase: OxlintConfig;
