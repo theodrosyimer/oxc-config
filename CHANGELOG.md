@@ -1,5 +1,15 @@
 # Changelog
 
+## [4.2.0](https://github.com/theodrosyimer/oxc-config/compare/4.1.0...4.2.0) (2026-10-18)
+
+### ✨ Features
+
+* run the import rules from eslint-plugin-import-x with @repo/source ([6b5358c](https://github.com/theodrosyimer/oxc-config/commit/6b5358cee5a9146442401e6341fdfd5de9827732))
+
+### 📚 Documentation
+
+* note the typescript 6 requirement and the import-x cost ([5d9ba02](https://github.com/theodrosyimer/oxc-config/commit/5d9ba0297fe739326194c80e37ab9280f162978b))
+
 ## [4.1.0](https://github.com/theodrosyimer/oxc-config/compare/4.0.1...4.1.0) (2026-10-18)
 
 ### ✨ Features
