@@ -15,7 +15,7 @@ TypeScript 7.0.2.
 | -------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
 | eslint core + `@eslint/js` recommended             | Oxlint built-in rules, each listed by name; every category is off                                     |
 | typescript-eslint (incl. type-aware presets)       | Oxlint `typescript/*` rules; type-aware via `oxlint-tsgolint` (tsgolint)[^3]                          |
-| `eslint-plugin-import-x` + TS resolver             | Oxlint `import` plugin (tsconfig-aware resolution built in)                                           |
+| `eslint-plugin-import-x` + TS resolver             | Same plugin and resolver through JS plugins (`import-x-js/*`), same settings, `@repo/source` included |
 | `import/order`                                     | **Oxfmt `sortImports`** — oxc will not implement `import/order`[^4]                                   |
 | `eslint-plugin-react`, `eslint-plugin-react-hooks` | Oxlint native `react` plugin; `eslint-plugin-react-hooks` as a JS plugin for 2 rules                  |
 | (new) `eslint-plugin-react-perf` `recommended`     | Oxlint native `react-perf` plugin                                                                     |
@@ -46,13 +46,15 @@ paths are rejected by Oxlint's TS-config loader.
 
 ```ts
 import { defineConfig } from "oxlint";
-import defaultConfig, { baseIgnorePatterns } from "@thyi/oxc-config";
+import defaultConfig, { baseIgnorePatterns, baseSettings } from "@thyi/oxc-config";
 
 export default defineConfig({
   extends: [defaultConfig],
-  // Always at ROOT level: ignore patterns carried through `extends`
-  // do not apply from the consuming project (verified on oxlint 1.79.0).
+  // Always at ROOT level: ignore patterns and settings carried through
+  // `extends` do not apply from the consuming project (verified on oxlint
+  // 1.79.0). baseSettings holds the import-x resolver (@repo/source).
   ignorePatterns: baseIgnorePatterns,
+  settings: baseSettings,
 });
 ```
 
@@ -60,13 +62,14 @@ export default defineConfig({
 
 ```ts
 import { defineConfig } from "oxlint";
-import { baseIgnorePatterns, reactConfig } from "@thyi/oxc-config";
+import { baseIgnorePatterns, baseSettings, reactConfig } from "@thyi/oxc-config";
 
 export default defineConfig({
   extends: [reactConfig],
   ignorePatterns: baseIgnorePatterns,
   // Your Tailwind CSS entry file (Uniwind: `global.css` at the project root).
   settings: {
+    ...baseSettings,
     "better-tailwindcss": { entryPoint: "global.css" },
   },
 });
@@ -79,13 +82,14 @@ Expo allowances; browser globals instead.
 
 ```ts
 import { defineConfig } from "oxlint";
-import { baseIgnorePatterns, reactWebConfig } from "@thyi/oxc-config";
+import { baseIgnorePatterns, baseSettings, reactWebConfig } from "@thyi/oxc-config";
 
 export default defineConfig({
   extends: [reactWebConfig],
   ignorePatterns: baseIgnorePatterns,
   // Your Tailwind CSS entry file.
   settings: {
+    ...baseSettings,
     "better-tailwindcss": { entryPoint: "src/styles.css" },
   },
 });
@@ -95,11 +99,12 @@ export default defineConfig({
 
 ```ts
 import { defineConfig } from "oxlint";
-import defaultConfig, { baseIgnorePatterns, turboAddon } from "@thyi/oxc-config";
+import defaultConfig, { baseIgnorePatterns, baseSettings, turboAddon } from "@thyi/oxc-config";
 
 export default defineConfig({
   extends: [defaultConfig, turboAddon],
   ignorePatterns: baseIgnorePatterns,
+  settings: baseSettings,
 });
 ```
 
@@ -229,22 +234,24 @@ re-exported (never put under `extends`) by the packages, because
 ```js
 // packages/config/oxlint/node.js
 import { defineConfig } from "oxlint";
-import { baseIgnorePatterns, defaultConfig, turboAddon } from "@thyi/oxc-config";
+import { baseIgnorePatterns, baseSettings, defaultConfig, turboAddon } from "@thyi/oxc-config";
 
 export default defineConfig({
   extends: [defaultConfig, turboAddon],
   ignorePatterns: baseIgnorePatterns,
+  settings: baseSettings,
 });
 ```
 
 ```js
 // packages/config/oxlint/react.js — react-web.js is the same with reactWebConfig
 import { defineConfig } from "oxlint";
-import { baseIgnorePatterns, reactConfig, turboAddon } from "@thyi/oxc-config";
+import { baseIgnorePatterns, baseSettings, reactConfig, turboAddon } from "@thyi/oxc-config";
 
 export default defineConfig({
   extends: [reactConfig, turboAddon],
   ignorePatterns: baseIgnorePatterns,
+  settings: baseSettings,
 });
 ```
 
@@ -289,7 +296,7 @@ import { defineConfig } from "oxlint";
 
 export default defineConfig({
   ...react,
-  settings: { "better-tailwindcss": { entryPoint: "global.css" } },
+  settings: { ...react.settings, "better-tailwindcss": { entryPoint: "global.css" } },
 });
 ```
 
@@ -439,7 +446,6 @@ eslint.config.js --type-aware` and diff its output against this package.[^1]
   | `react/prop-types`                                 | left out: it checks JavaScript props, and TypeScript types them                                                       |
   | `react/no-deprecated`                              | partly: `react/no-unsafe` with `checkAliases` reports the deprecated lifecycle methods, not the other deprecated APIs |
   | `react-hooks/config`, `react-hooks/gating`         | eslint-plugin-react-hooks itself, as the `react-hooks-js` JS plugin                                                   |
-  | `import-x/no-unresolved`                           | `--type-check` (TS2307)                                                                                               |
   | `import-x/order`                                   | Oxfmt `sortImports`                                                                                                   |
   | `no-octal`, `no-dupe-args` (JavaScript files only) | Oxlint's parser rejects both                                                                                          |
   | `react/jsx-uses-react`, `react/jsx-uses-vars`      | not needed: `no-unused-vars` counts JSX use                                                                           |
@@ -447,21 +453,14 @@ eslint.config.js --type-aware` and diff its output against this package.[^1]
   Every other rule the ESLint presets enable is listed explicitly at the same
   severity, and no rule outside that list is on.
 
-- **No `@repo/source` resolver condition**: Oxlint's settings have no import
-  resolver key, so the `conditionNames` the ESLint config passes to the
-  TypeScript resolver cannot be set. In a live-types monorepo, `import/*`
-  rules may follow `default` into a gitignored `dist/`.
-- **Tailwind classes** (`eslint-plugin-better-tailwindcss` 4.9.1, both React
-  configs): all 15 rules, stylistic ones at `warn` and correctness ones at
-  `error`, as the plugin's own configs set them. They check `className`, the
-  plugin's default helpers (`cn`, `clsx`, `tv`, `cva`, …) and every Uniwind
-  `*ClassName` prop. Set `settings["better-tailwindcss"].entryPoint` to the
-  project's Tailwind CSS file: without it, `no-unknown-classes` checks
-  against Tailwind's default theme and reports every `@theme` token.
-  Overlaps: `no-concatenated-classes` and `react-native/no-dynamic-classnames`
-  report the same runtime-built class; `enforce-consistent-class-order` and
-  Oxfmt's `sortTailwindcss` both sort classes, so turn on only one.
-  `no-restricted-classes` reports nothing until its options list classes.
+- **Import rules run from eslint-plugin-import-x**, as `import-x-js/*`: Oxlint's
+  native `import` resolver reads no `customConditions` and takes no
+  `conditionNames`, so in a live-types monorepo it followed `default` into a
+  missing `dist/` and its rules skipped the import. The JS plugin uses the
+  same resolver and settings as `@thyi/eslint-config`, so `@repo/source`
+  resolves. Put `baseSettings` in the root config's `settings`: Oxlint passes
+  only the root config's settings to JS plugins. Its TypeScript parser needs
+  `typescript` 6.0.x installed, as with `@thyi/eslint-config`.
 - `@tanstack/query/no-void-query-fn` asks for type information, which Oxlint
   does not give JS plugins; expect it to stay silent.
 - `sortPackageJson.sortScripts` defaults to `false` — scripts keep their

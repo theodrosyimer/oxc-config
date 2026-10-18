@@ -5,6 +5,7 @@ export declare const baseIgnorePatterns: NonNullable<OxlintConfig["ignorePattern
 export declare const basePlugins: NonNullable<OxlintConfig["plugins"]>;
 export declare const baseCategories: NonNullable<OxlintConfig["categories"]>;
 export declare const baseRules: NonNullable<OxlintConfig["rules"]>;
+export declare const baseSettings: NonNullable<OxlintConfig["settings"]>;
 export declare const baseTypeAwareRules: NonNullable<OxlintConfig["rules"]>;
 export declare const typeAwareOffForJs: NonNullable<OxlintConfig["rules"]>;
 export declare const baseOverrides: NonNullable<OxlintConfig["overrides"]>;

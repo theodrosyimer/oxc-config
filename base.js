@@ -57,10 +57,12 @@ export const baseIgnorePatterns = [
  * so every wanted plugin must be listed explicitly.
  * `eslint` core rules are always available and are not a plugin entry.
  * Only the plugins the ESLint config has an equivalent for: no `unicorn`,
- * no `oxc`.
+ * no `oxc`. No native `import` either: its resolver cannot take the
+ * `@repo/source` condition, so the import rules run from eslint-plugin-import-x
+ * itself (`import-x-js`, below).
  */
 /** @type {NonNullable<OxlintConfig['plugins']>} */
-export const basePlugins = ["typescript", "import"];
+export const basePlugins = ["typescript"];
 
 /**
  * `@stylistic/eslint-plugin` has no native port; its one rule in use
@@ -69,8 +71,63 @@ export const basePlugins = ["typescript", "import"];
  */
 const stylisticPluginPath = fileURLToPath(import.meta.resolve("@stylistic/eslint-plugin"));
 
+/**
+ * eslint-plugin-import-x, the plugin @thyi/eslint-config uses, as a JS
+ * plugin: Oxlint's native `import` resolver reads no `customConditions` and
+ * takes no `conditionNames`, so in a live-types monorepo it follows
+ * `default` into a gitignored `dist/` and the import rules skip the import.
+ * `import-x` is a reserved plugin name in Oxlint, hence the alias.
+ */
+const importXPluginPath = fileURLToPath(import.meta.resolve("eslint-plugin-import-x"));
+
 /** @type {NonNullable<OxlintConfig['jsPlugins']>} */
-export const baseJsPlugins = [stylisticPluginPath];
+export const baseJsPlugins = [
+  stylisticPluginPath,
+  { name: "import-x-js", specifier: importXPluginPath },
+];
+
+/**
+ * The import-x settings @thyi/eslint-config v3.0.1 resolves to, unchanged:
+ * the `typescript` resolver with the `@repo/source` condition first (the
+ * live-types source export), and the parser import-x reads TypeScript
+ * dependencies with.
+ *
+ * "Live-types repos resolve #/ and workspace specifiers through the
+ * @repo/source condition; without it the resolver follows `default` into
+ * gitignored dist/. Inert in repos whose exports never declare it. Supplying
+ * conditionNames REPLACES the resolver defaults, hence the tail." (eslint-config
+ * `base.js`)
+ *
+ * IMPORTANT: put these in the ROOT config's `settings` yourself, like
+ * `baseIgnorePatterns`. Oxlint 1.79.0 passes only the root config's
+ * `settings` to JS plugins: the same settings set in an extended config left
+ * `@repo/source` unresolved, and at the root they resolved it.
+ */
+export const baseSettings = {
+  "import-x/extensions": [".js", ".jsx", ".mjs", ".cjs"],
+  "import-x/external-module-folders": ["node_modules", "node_modules/@types"],
+  "import-x/parsers": {
+    "@typescript-eslint/parser": [".ts", ".tsx", ".cts", ".mts"],
+  },
+  "import-x/resolver": {
+    typescript: {
+      conditionNames: [
+        "@repo/source",
+        "types",
+        "import",
+        "esm2020",
+        "es2020",
+        "es2015",
+        "require",
+        "node",
+        "node-addons",
+        "browser",
+        "default",
+      ],
+    },
+    node: true,
+  },
+};
 
 /**
  * Every category off, `correctness` included (Oxlint turns it on by
@@ -141,10 +198,11 @@ export const baseRules = {
   "require-yield": "error",
   "use-isnan": "error",
   "valid-typeof": "error",
-  "import/default": "error",
-  "import/namespace": "error",
-  "import/no-named-as-default": "warn",
-  "import/no-named-as-default-member": "warn",
+  "import-x-js/default": "error",
+  "import-x-js/namespace": "error",
+  "import-x-js/no-named-as-default": "warn",
+  "import-x-js/no-named-as-default-member": "warn",
+  "import-x-js/no-unresolved": "error",
   "typescript/no-duplicate-enum-values": "error",
   "typescript/no-misused-new": "error",
   "typescript/no-require-imports": "error",
@@ -166,8 +224,8 @@ export const baseRules = {
   "prefer-const": "error",
   "prefer-rest-params": "error",
   "prefer-spread": "error",
-  "import/export": "error",
-  "import/no-duplicates": "warn",
+  "import-x-js/export": "error",
+  "import-x-js/no-duplicates": "warn",
   "typescript/adjacent-overload-signatures": "error",
   "typescript/ban-ts-comment": "error",
   "typescript/ban-tslint-comment": "error",
@@ -345,7 +403,7 @@ export const jsOnlyRules = {
   "no-unreachable": "error",
   "no-unsafe-negation": "error",
   "no-with": "error",
-  "import/named": "error",
+  "import-x-js/named": "error",
 };
 
 /** @type {NonNullable<OxlintConfig['overrides']>} */
@@ -393,7 +451,8 @@ export const baseOverrides = [
 /**
  * Shared skeleton every variant extends via `extends: [oxcBase]` in a
  * TS/JS config (object form — string paths are rejected by Oxlint's loader).
- * Does NOT carry `ignorePatterns` — see `baseIgnorePatterns` above.
+ * Does NOT carry `ignorePatterns` or `settings` — see `baseIgnorePatterns` and
+ * `baseSettings` above.
  */
 /** @type {OxlintConfig} */
 export const oxcBase = {

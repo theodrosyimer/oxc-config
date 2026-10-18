@@ -4,6 +4,7 @@ export {
   baseOverrides,
   basePlugins,
   baseRules,
+  baseSettings,
   baseTypeAwareRules,
   oxcBase,
   typeAwareOffForJs,
