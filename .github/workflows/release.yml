@@ -63,7 +63,7 @@ jobs:
           }
 
       - name: Install dependencies
-        run: pnpm ci
+        run: pnpm install --frozen-lockfile
 
       # ✅ Oxc re-verification at the RELEASE commit. The CI run that
       # triggered this workflow validated `workflow_run.head_sha`, but this
@@ -89,11 +89,14 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: pnpm release --ci
 
-      # - name: Publish
-      #   run: pnpm publish --access public
+      # Same step as @thyi/eslint-config, whose 3.0.1 was published this way
+      # through OIDC (npm shows `trustedPublisher: github` and a provenance
+      # attestation for it), so pnpm 11's token exchange works.
+      - name: Publish
+        run: pnpm publish --access public
 
       # ─────────────────────────────────────────────────────────────────────
-      # BOOTSTRAP / FALLBACK VARIANTS — uncomment ONE if OIDC cannot be used.
+      # BOOTSTRAP — only if OIDC cannot be used.
       #
       # A) FIRST-EVER PUBLISH of a new package (OIDC impossible by design:
       #    npm cannot configure a trusted publisher for a package that does
@@ -109,17 +112,10 @@ jobs:
       #     NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       #   run: pnpm publish --access public
       #
-      # B) pnpm 11 OIDC regression fallback (pnpm/pnpm#11513: token exchange
-      #    404s on pnpm 11 where pnpm 10 worked). Uses the npm CLI instead;
-      #    trusted publishing needs npm >=11.5.1, installed here since the
-      #    active workflow no longer touches the npm CLI. `--provenance` is
-      #    documented as automatic with trusted publishing but has been
-      #    reported as still required.
-      #
-      - name: Publish (npm CLI OIDC fallback)
-        run: |
-          npm install -g npm@latest
-          npm publish --access public --provenance
+      # The npm CLI fallback that stood here (pnpm/pnpm#11513) is gone:
+      # @thyi/oxc-config had never been published (the registry answered 404
+      # for it on 2026-10-18), so no trusted publisher could exist for it and
+      # case A, not pnpm, is the likely cause of the failed publishes.
       # ─────────────────────────────────────────────────────────────────────
 
       - name: Verify Provenance
